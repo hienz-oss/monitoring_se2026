@@ -1,8 +1,6 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzUib9Ac3cFUT7weTn2U0SoHvezLu79mlFkZhxKVzih5bM_R67VX-k90eHCxhzQ_3KYnA/exec";
 
 let allData = [];
-let previousProgress = {}; // key: pplName -> progress
-let prevTopPplProgress = {};
 
 let currentPage = 1;
 const rowsPerPage = 10;
