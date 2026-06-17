@@ -569,12 +569,6 @@ function renderTopPpl() {
 
   ranking.slice(0, 3).forEach((item, index) => {
 
-    const prev = prevTopPplProgress[item.ppl] ?? item.progress;
-    const trend = getTrend(item.progress, prev);
-
-    // update cache
-    prevTopPplProgress[item.ppl] = item.progress;
-
     container.innerHTML += `
       <div class="top-item">
         <div>
@@ -583,9 +577,6 @@ function renderTopPpl() {
 
         <div class="top-progress">
           ${formatPercent(item.progress)}
-          <span class="trend ${trend.class}">
-            ${trend.icon} ${trend.text}
-          </span>
         </div>
       </div>
     `;
@@ -598,14 +589,6 @@ function renderTopPpl() {
       </div>
     `;
   }
-}
-
-function getTrend(current, previous) {
-  const diff = current - previous;
-
-  if (diff > 0) return { icon: "▲", class: "up", text: `+${diff.toFixed(1)}%` };
-  if (diff < 0) return { icon: "▼", class: "down", text: `${diff.toFixed(1)}%` };
-  return { icon: "●", class: "stable", text: "0%" };
 }
 
 function renderTopPplSkeleton() {
