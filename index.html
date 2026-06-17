@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring SE2026</title>
+    <link rel="icon" href="logo_se2026s.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <meta name="description" content="Dashboard Monitoring Progres Pendataan Lapangan SE2026">
+    <meta property="og:title" content="Monitoring SE2026">
+    <meta property="og:description" content="Dashboard Monitoring Progres Pendataan Lapangan SE2026">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://se2026-320805.vercel.app/">
+    <meta property="og:image" content="https://se2026-320805.vercel.app/logo_se2026s.png">
+</head>
+
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-left">
+                <img src="logo_se2026s.png" alt="SE2026" class="header-logo">
+                <div>
+                    <h1>Monitoring SE2026</h1>
+                    <p>Dashboard Progres Pendataan Lapangan</p>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="theme-slider"></span>
+                </label>
+
+                <div class="region-wrap">
+                    <button id="regionBtn" class="region-badge" type="button">
+                        Memuat ...
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+
+                    <div id="regionPanel" class="region-panel hide">
+                        <div class="region-title">
+                                <div class="region-user-content">
+                                    <img id="regionAvatar" src="default-avatar.png" class="user-avatar">
+                                    <div class="region-user-text">
+                                        <span id="regionTitle">Uhin Awaludin</span>
+                                        <small id="regionUserId">Sobat ID: 320822020033</small>
+                                    </div>
+                                </div>
+                        </div>
+
+                        <div class="region-meta">
+                            <div>
+                                <span>Kecamatan</span>
+                                <strong id="regionKec">-</strong>
+                            </div>
+
+                            <div>
+                                <span>Kabupaten</span>
+                                <strong id="regionKab">-</strong>
+                            </div>
+
+                            <div>
+                                <span>Provinsi</span>
+                                <strong id="regionProv">-</strong>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="region-stats">
+                            <div>
+                                <span>Desa</span>
+                                <strong id="regionDesa">0</strong>
+                            </div>
+
+                            <div>
+                                <span>SLS</span>
+                                <strong id="regionSls">0</strong>
+                            </div>
+
+                            <div>
+                                <span>PPL</span>
+                                <strong id="regionPpl">0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main">
+            <div class="sync-row">
+                <div class="sync-actions">
+                    <div id="syncStatus" class="sync-status">
+                        Belum sinkron
+                    </div>
+
+                    <button id="refreshBtn" class="refresh-btn" title="Refresh Data">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+
+                    <div class="setting-wrap">
+                        <button id="settingBtn" class="setting-btn" title="Setting tampilan">
+                            <i class="fa-solid fa-sliders"></i>
+                        </button>
+
+                        <div id="settingPanel" class="setting-panel hide">
+                            <h3>Tampilkan/Sembunyikan</h3>
+
+                            <label class="setting-item">
+                                <span>Progress PPL</span>
+                                <label class="mini-switch">
+                                    <input type="checkbox" id="togglePplTable" checked>
+                                    <span class="mini-slider"></span>
+                                </label>
+                            </label>
+
+                            <label class="setting-item">
+                                <span>Progress SLS</span>
+                                <label class="mini-switch">
+                                    <input type="checkbox" id="toggleDetailTable" checked>
+                                    <span class="mini-slider"></span>
+                                </label>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="label">Total Assignment</div>
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <div id="totalMuatan" class="value">0</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="label">Open</div>
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <div id="totalOpen" class="value">0</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="label">Approved</div>
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div id="totalApprove" class="value">0</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="label">Progress</div>
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div id="totalProgress" class="value">0%</div>
+                </div>
+            </div>
+
+            <div class="ppl-card-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Ringkasan PPL
+                </h3>
+                <div id="pplCards" class="ppl-cards">
+                    <div class="ppl-card skeleton-card"></div>
+                    <div class="ppl-card skeleton-card"></div>
+                    <div class="ppl-card skeleton-card"></div>
+                    <div class="ppl-card skeleton-card"></div>
+                    <div class="ppl-card skeleton-card"></div>
+                    <div class="ppl-card skeleton-card"></div>
+                </div>
+            </div>
+
+            <div class="monitor-grid">
+                <div class="monitor-panel">
+                    <h3 class="panel-title">
+                        <i class="fa-solid fa-trophy"></i>
+                        Top 3 Progress PPL
+                    </h3>
+
+                    <div id="topPplList">
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                    </div>
+                </div>
+
+                <div class="monitor-panel">
+                    <h3 class="panel-title">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        Top 3 Progress Desa
+                    </h3>
+
+                    <div id="topDesaList">
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                        <div class="top-skeleton"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pplTableSection" class="summary-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-users-gear"></i>
+                    Progress PPL
+                </h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PPL</th>
+                                <th>Assignment</th>
+                                <th>Open</th>
+                                <th>Submit</th>
+                                <th>Reject</th>
+                                <th>Approved</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pplBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="detailTableSection" class="summary-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    Progress SLS
+                </h3>
+                <div class="toolbar">
+                    <div class="search-wrap">
+                        <input type="text" id="searchInput" placeholder="Cari Desa, SLS atau PPL...">
+                        <button id="clearSearch" class="clear-search" title="Hapus pencarian">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <select id="pplFilter">
+                        <option value="">Semua PPL</option>
+                    </select>
+
+                    <select id="statusFilter">
+                        <option value="">Semua Status</option>
+                        <option value="Belum Mulai">Belum Mulai</option>
+                        <option value="Belum Selesai">Belum Selesai</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                </div>
+
+                <div class="table-section">
+                    <div id="tableLoader" class="table-loader hide">
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th width="110">Desa</th>
+                                    <th>SLS</th>
+                                    <th width="180">PPL</th>
+                                    <th width="80">Assignment</th>
+                                    <th width="80">Open</th>
+                                    <th width="80">Submit</th>
+                                    <th width="80">Approved</th>
+                                    <th width="80">Progress</th>
+                                    <th width="110">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataBody"></tbody>
+                        </table>
+
+                        <div id="emptyState" class="empty-state hide">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <h4>Data tidak ditemukan</h4>
+                            <p>Coba ubah kata kunci pencarian atau filter yang digunakan.</p>
+                        </div>
+
+                        <div id="pagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
