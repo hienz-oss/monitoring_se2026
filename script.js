@@ -544,11 +544,13 @@ function renderTopPpl() {
     if (!summary[ppl]) {
       summary[ppl] = {
         muatan: 0,
+        submit: 0,
         approve: 0
       };
     }
 
     summary[ppl].muatan += getMuatan(item);
+    summary[ppl].submit += angka(item.SUBMIT);
     summary[ppl].approve += angka(item.APPROVED);
   });
 
@@ -556,7 +558,7 @@ function renderTopPpl() {
     .map(([ppl, data]) => {
       const progress =
         data.muatan > 0
-          ? (data.approve / data.muatan) * 100
+          ? ((data.submit + data.approve) / data.muatan) * 100
           : 0;
 
       return { ppl, progress };
@@ -618,11 +620,13 @@ function renderTopDesa() {
     if (!summary[desa]) {
       summary[desa] = {
         muatan: 0,
+        submit: 0,
         approve: 0
       };
     }
 
     summary[desa].muatan += getMuatan(item);
+    summary[desa].submit += angka(item.SUBMIT);
     summary[desa].approve += angka(item.APPROVED);
   });
 
@@ -632,7 +636,7 @@ function renderTopDesa() {
         desa,
         progress:
           data.muatan > 0
-            ? (data.approve / data.muatan) * 100
+            ? ((data.submit + data.approve) / data.muatan) * 100
             : 0
       }))
       .sort((a, b) => b.progress - a.progress);
@@ -707,6 +711,24 @@ function renderPplSummary() {
     summary[ppl].approve += angka(item.APPROVED);
   });
 
+  // Periode pendataan
+  const startDate = new Date("2026-06-15");
+  const endDate = new Date("2026-08-31");
+  const today = new Date();
+
+  const msPerDay = 1000 * 60 * 60 * 24;
+
+  const totalHari =
+    Math.ceil((endDate - startDate) / msPerDay) + 1;
+
+  const hariBerjalan = Math.min(
+    Math.max(
+      Math.ceil((today - startDate) / msPerDay) + 1,
+      1
+    ),
+    totalHari
+  );
+
   Object.entries(summary)
     .sort((a, b) =>
       a[0].localeCompare(
@@ -717,19 +739,37 @@ function renderPplSummary() {
     )
     .forEach(([ppl, data]) => {
 
-      data.open =
-        Math.max(
-          data.muatan -
-          data.submit -
-          data.reject -
-          data.approve,
-          0
-        );
+      data.open = Math.max(
+        data.muatan -
+        data.submit -
+        data.reject -
+        data.approve,
+        0
+      );
 
+      // Progress aktual
       const progress =
         data.muatan > 0
-          ? (data.approve / data.muatan) * 100
+          ? ((data.submit + data.approve) / data.muatan) * 100
           : 0;
+
+      // Target kumulatif sampai hari ini
+      const targetHariIni =
+        data.muatan * (hariBerjalan / totalHari);
+
+      // Digunakan hanya untuk menentukan warna badge
+      const targetCapaian =
+        targetHariIni > 0
+          ? ((data.submit + data.approve) / targetHariIni) * 100
+          : 0;
+
+      let progressClass = "success";
+
+      if (targetCapaian < 80) {
+        progressClass = "danger";
+      } else if (targetCapaian < 100) {
+        progressClass = "warning";
+      }
 
       let status = "Belum Mulai";
       let statusClass = "empty";
@@ -750,7 +790,11 @@ function renderPplSummary() {
           <td align="center">${formatNumber(data.submit)}</td>
           <td align="center">${formatNumber(data.reject)}</td>
           <td align="center">${formatNumber(data.approve)}</td>
-          <td align="center">${formatPercent(progress)}</td>
+          <td align="center">
+            <span class="badge ${progressClass}">
+              ${formatPercent(progress)}
+            </span>
+          </td>
           <td>
             <span class="status ${statusClass}">
               ${status}
@@ -786,6 +830,24 @@ function renderPplCards() {
     summary[ppl].approve += angka(item.APPROVED);
   });
 
+  // Periode pendataan
+  const startDate = new Date("2026-06-15");
+  const endDate = new Date("2026-08-31");
+  const today = new Date();
+
+  const msPerDay = 1000 * 60 * 60 * 24;
+
+  const totalHari =
+    Math.ceil((endDate - startDate) / msPerDay) + 1;
+
+  const hariBerjalan = Math.min(
+    Math.max(
+      Math.ceil((today - startDate) / msPerDay) + 1,
+      1
+    ),
+    totalHari
+  );
+
   Object.entries(summary)
     .sort((a, b) =>
       a[0].localeCompare(
@@ -795,19 +857,37 @@ function renderPplCards() {
       )
     )
     .forEach(([ppl, data]) => {
+
+      // Progress aktual
       const progress =
         data.muatan > 0
-          ? (data.approve / data.muatan) * 100
+          ? ((data.submit + data.approve) / data.muatan) * 100
           : 0;
 
-      const open =
-        Math.max(
-          angka(data.muatan) -
-          angka(data.submit) -
-          angka(data.reject) -
-          angka(data.approve),
-          0
-        );
+      // Target sampai hari ini
+      const targetHariIni =
+        data.muatan * (hariBerjalan / totalHari);
+
+      const targetCapaian =
+        targetHariIni > 0
+          ? ((data.submit + data.approve) / targetHariIni) * 100
+          : 0;
+
+      let progressClass = "success";
+
+      if (targetCapaian < 80) {
+        progressClass = "danger";
+      } else if (targetCapaian < 100) {
+        progressClass = "warning";
+      }
+
+      const open = Math.max(
+        angka(data.muatan) -
+        angka(data.submit) -
+        angka(data.reject) -
+        angka(data.approve),
+        0
+      );
 
       const initials = ppl
         .trim()
@@ -820,8 +900,12 @@ function renderPplCards() {
             <span class="ppl-avatar">
               ${initials}
             </span>
+
             <span>${ppl}</span>
-            <strong>${formatPercent(progress)}</strong>
+
+            <span class="badge ${progressClass}">
+              ${formatPercent(progress)}
+            </span>
           </div>
 
           <div class="ppl-progress">
@@ -918,7 +1002,7 @@ function renderTable(data) {
 
     const progress =
       total > 0
-        ? (approve / total) * 100
+        ? ((submit + approve) / total) * 100
         : 0;
 
     const status =
@@ -932,6 +1016,7 @@ function renderTable(data) {
         <td align="center">${formatNumber(total)}</td>
         <td align="center">${formatNumber(open)}</td>
         <td align="center">${formatNumber(submit)}</td>
+        <td align="center">${formatNumber(reject)}</td>
         <td align="center">${formatNumber(approve)}</td>
         <td align="center">${formatPercent(progress)}</td>
         <td><span class="status ${status.className}">${status.text}</span></td>
