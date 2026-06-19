@@ -1369,7 +1369,7 @@ tbody tr:hover {
     flex-shrink: 0;
   }
 
-  .user-profile {
+  .region-badge .user-profile {
     display: none;
   }
 
