@@ -142,7 +142,7 @@ function formatPercent(value) {
 }
 
 function updateSyncStatus(text) {
-  document.getElementById("syncStatus").textContent = text;
+  document.getElementById("syncStatusText").textContent = text;
 }
 
 function renderFilter() {
