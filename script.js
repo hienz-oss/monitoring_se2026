@@ -271,10 +271,8 @@ function renderRegionInfo() {
       ? (totalApprove / totalMuatan) * 100
       : 0;
 
-  document.getElementById("regionBtn").innerHTML = `
-    Uhin Awaludin
-    <i class="fa-solid fa-chevron-down"></i>
-  `;
+  document.getElementById("regionText").textContent =
+    "Uhin Awaludin";
 
   document.getElementById("regionTitle").textContent =
     "Uhin Awaludin";
