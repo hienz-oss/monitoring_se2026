@@ -360,6 +360,10 @@ body {
   font-size: 13px;
 }
 
+.sync-status i {
+  margin-right: 10px;
+}
+
 .refresh-btn {
   width: 30px;
   height: 30px;
