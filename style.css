@@ -1,4 +1,5 @@
 :root {
+  --body-font: Arimo, sans-serif;
   --bg: #eef2f7;
   --surface: #ffffff;
   --text: #1f2937;
@@ -63,7 +64,7 @@
 }
 
 body {
-  font-family: Arimo, sans-serif;
+  font-family: var(--body-font);
   font-size: 13px;
   background: var(--bg);
   color: var(--text);
@@ -356,7 +357,6 @@ body {
   color: var(--sync-text);
   border-radius: 8px;
   font-size: 13px;
-  font-weight: 600;
 }
 
 .refresh-btn {
@@ -943,6 +943,30 @@ body {
 
 .status-done {
   background: #22c55e;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.badge.success {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.badge.warning {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.badge.danger {
+  color: #991b1b;
+  background: #fee2e2;
 }
 
 .more-ppl {
