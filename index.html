@@ -35,8 +35,9 @@
 
                 <div class="region-wrap">
                     <button id="regionBtn" class="region-badge" type="button">
-                        Memuat ...
-                        <i class="fa-solid fa-chevron-down"></i>
+                        <i class="fa-solid fa-circle-user user-profile"></i>
+                        <span id="regionText">Memuat ...</span>
+                        <i class="fa-solid fa-chevron-down chevron-icon"></i>
                     </button>
 
                     <div id="regionPanel" class="region-panel hide">
@@ -46,6 +47,7 @@
                                     <div class="region-user-text">
                                         <span id="regionTitle">Uhin Awaludin</span>
                                         <small id="regionUserId">Sobat ID: 320822020033</small>
+                                        <small id="regionUserId">Pengawas (PML)</small>
                                     </div>
                                 </div>
                         </div>
@@ -164,11 +166,30 @@
                 </div>
             </div>
 
+            <div class="progress-legend">
+                <span>Status Progress :</span>
+                <span class="legend-tag success">
+                    <span class="legend-dot"></span>
+                    On Track / Selesai (≥ 100% Target Hari Ini)
+                </span>
+            
+                <span class="legend-tag warning">
+                    <span class="legend-dot"></span>
+                    Peringatan (80% - 99% Target Hari Ini)
+                </span>
+            
+                <span class="legend-tag danger">
+                    <span class="legend-dot"></span>
+                    Tertinggal / Butuh Atensi (&lt; 80% Target Hari Ini)
+                </span>
+            </div>
+
             <div class="ppl-card-section">
                 <h3 class="section-title">
                     <i class="fa-solid fa-chart-pie"></i>
                     Ringkasan PPL
                 </h3>
+                
                 <div id="pplCards" class="ppl-cards">
                     <div class="ppl-card skeleton-card"></div>
                     <div class="ppl-card skeleton-card"></div>
