@@ -1369,6 +1369,10 @@ tbody tr:hover {
     flex-shrink: 0;
   }
 
+  .user-profile {
+    display: none;
+  }
+
   .theme-switch {
     width: 44px;
     height: 24px;
