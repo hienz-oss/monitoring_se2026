@@ -327,7 +327,7 @@ function renderDashboard() {
 
   const progress =
     totalMuatan > 0
-      ? ((totalSubmit + totalApprove0 / totalMuatan) * 100
+      ? ((totalSubmit + totalApprove) / totalMuatan) * 100
       : 0;
 
   document.getElementById("totalMuatan").textContent =
