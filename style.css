@@ -1398,6 +1398,10 @@ tbody tr:hover {
     text-overflow: ellipsis;
   }
 
+  .user-profile {
+    display: none;
+  }
+
   .region-panel {
     position: fixed;
     top: 58px;
