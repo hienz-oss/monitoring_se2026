@@ -17,9 +17,11 @@
   --sync-border: #fde68a;
   --sync-text: #b45309;
 
-  --badge-bg: #fffbeb;
-  --badge-border: #fde68a;
-  --badge-text: #b45309;
+  --title-border: #cfcfcf;
+
+  --badge-bg: #f3f4f6;
+  --badge-border: #d1d5db;
+  --badge-text: #374151;
 
   --badge-success-bg: #ecfdf5;
   --badge-success-border: #bbf7d0;
@@ -54,9 +56,11 @@
   --sync-border: #8a5a00;
   --sync-text: #fbbf24;
 
-  --badge-bg: rgba(245, 158, 11, .12);
-  --badge-border: rgba(245, 158, 11, .35);
-  --badge-text: #fbbf24;
+  --title-border: rgba(96, 165, 250, .45);
+
+  --badge-bg: rgba(148, 163, 184, .12);
+  --badge-border: rgba(148, 163, 184, .3);
+  --badge-text: #cbd5e1;
 
   --badge-success-bg: rgba(34, 197, 94, .12);
   --badge-success-border: rgba(34, 197, 94, .35);
@@ -691,11 +695,11 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding-bottom: 10px;
   font-size: 15px;
   font-weight: 700;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--title-border);
 }
 
 .section-title i {
@@ -902,11 +906,11 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding-bottom: 10px;
   font-size: 15px;
   font-weight: 700;
-  border-bottom: 1px solid var(--border)
+  border-bottom: 1px solid var(--title-border);
 }
 
 .panel-title i {
@@ -1031,18 +1035,21 @@ body {
 }
 
 .badge.success {
-  color: #166534;
-  background: #dcfce7;
+  color: var(--badge-success-text);
+  background: var(--badge-success-bg);
+  border: 1px solid var(--badge-success-border);
 }
 
 .badge.warning {
-  color: #92400e;
-  background: #fef3c7;
+  color: var(--badge-warning-text);
+  background: var(--badge-warning-bg);
+  border: 1px solid var(--badge-warning-border);
 }
 
 .badge.danger {
-  color: #991b1b;
-  background: #fee2e2;
+  color: var(--badge-danger-text);
+  background: var(--badge-danger-bg);
+  border: 1px solid var(--badge-danger-border);
 }
 
 .more-ppl {
