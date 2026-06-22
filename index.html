@@ -36,7 +36,7 @@
                 <div class="region-wrap">
                     <button id="regionBtn" class="region-badge" type="button">
                         <i class="fa-solid fa-circle-user user-profile"></i>
-                        <span id="regionText">Memuat ...</span>
+                        <span id="regionText">Uhin Awaludin</span>
                         <i class="fa-solid fa-chevron-down chevron-icon"></i>
                     </button>
 
@@ -53,6 +53,9 @@
                         </div>
 
                         <div class="region-meta">
+                            <div>
+                                <strong>Wilayah Tugas</strong>
+                            </div>
                             <div>
                                 <span>Kecamatan</span>
                                 <strong id="regionKec">-</strong>
@@ -173,6 +176,11 @@
                 </h3>
 
                 <div class="progress-legend">
+                    <span id="targetBadge" class="legend-tag target">
+                        <i class="fa-solid fa-bullseye"></i>
+                        Target Hari Ini: -
+                    </span>
+                
                     <span class="legend-tag success">
                         <span class="legend-dot"></span>
                         On Track / Selesai (≥ 100% Target Hari Ini)
@@ -318,7 +326,8 @@
             </div>
         </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="script.js"></script>
 </body>
 </html>
