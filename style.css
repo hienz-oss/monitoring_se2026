@@ -1394,7 +1394,7 @@ tbody tr:hover {
     text-overflow: ellipsis;
   }
 
-  .user-profile {
+  i.user-profile {
     display: none;
   }
 
