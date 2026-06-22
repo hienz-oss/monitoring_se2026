@@ -145,6 +145,86 @@ function updateSyncStatus(text) {
   document.getElementById("syncStatusText").textContent = text;
 }
 
+function getTargetHariIni() {
+
+  const baseline =
+    new Date("2026-06-17T12:00:00");
+
+  const today =
+    new Date();
+
+  const msPerHour =
+    1000 * 60 * 60;
+
+  const diffHours =
+    (today - baseline) / msPerHour;
+
+  const cycles =
+    Math.floor(diffHours / 24);
+
+  let targetHariIni =
+    5.1 + (cycles * 1.7);
+
+  return Math.max(
+    3.4,
+    Math.min(targetHariIni, 100)
+  );
+
+}
+
+function getProgressClass(progress) {
+
+  const targetHariIni =
+    getTargetHariIni();
+
+  const targetPercent =
+    targetHariIni > 0
+      ? (progress / targetHariIni) * 100
+      : 0;
+
+  if (targetPercent >= 100) {
+    return "success";
+  }
+
+  if (targetPercent >= 80) {
+    return "warning";
+  }
+
+  return "danger";
+
+}
+
+function renderTargetHariIni() {
+  const baseline =
+    new Date("2026-06-17T12:00:00");
+
+  const today = new Date();
+
+  const msPerHour =
+    1000 * 60 * 60;
+
+  const diffHours =
+    (today - baseline) / msPerHour;
+
+  const cycles =
+    Math.floor(diffHours / 24);
+
+  // Target awal 5,1%
+  let targetHariIni =
+    5.1 + (cycles * 1.7);
+
+  // Batas bawah dan atas
+  targetHariIni = Math.max(
+    3.4,
+    Math.min(targetHariIni, 100)
+  );
+
+  document.getElementById("targetBadge").innerHTML = `
+    <i class="fa-solid fa-bullseye"></i>
+    Target Hari Ini: ${formatPercent(targetHariIni)}
+  `;
+}
+
 function renderFilter() {
   const pplFilter = document.getElementById("pplFilter");
 
@@ -341,8 +421,8 @@ function renderDashboard() {
 
   document.getElementById("totalProgress").textContent =
     formatPercent(progress);
-
-  renderTeamCompare();
+  
+  renderTargetHariIni();
   renderTopPpl();
   renderTopDesa();
   renderPplCards();
@@ -351,184 +431,108 @@ function renderDashboard() {
   renderPagination(data);
 }
 
-function getTeamProgress(members) {
+function renderPplCards() {
+  const container = document.getElementById("pplCards");
 
-  let totalMuatan = 0;
-  let totalApproved = 0;
+  container.innerHTML = "";
 
-  members.forEach(name => {
+  const summary = {};
 
-    const rows =
-      allData.filter(item =>
-        String(item.NAMA_PPL || "")
-          .trim()
-          .toLowerCase() ===
-        name.trim().toLowerCase()
-      );
+  allData.forEach(item => {
+    const ppl = item.NAMA_PPL || "-";
 
-    totalMuatan +=
-      rows.reduce(
-        (sum, item) =>
-          sum + getMuatan(item),
-        0
-      );
+    if (!summary[ppl]) {
+      summary[ppl] = {
+        muatan: 0,
+        submit: 0,
+        reject: 0,
+        approve: 0
+      };
+    }
 
-    totalApproved +=
-      rows.reduce(
-        (sum, item) =>
-          sum + angka(item.APPROVED),
-        0
-      );
-
+    summary[ppl].muatan += getMuatan(item);
+    summary[ppl].submit += angka(item.SUBMIT);
+    summary[ppl].reject += angka(item.REJECT);
+    summary[ppl].approve += angka(item.APPROVED);
   });
 
-  return totalMuatan > 0
-    ? (totalApproved / totalMuatan) * 100
-    : 0;
-}
-
-function renderTeamCompare() {
-  const teamOneContainer =
-    document.getElementById("teamOneList");
-
-  const teamTwoContainer =
-    document.getElementById("teamTwoList");
-
-  if (!teamOneContainer || !teamTwoContainer) return;
-
-  const teamOne = [
-    "Syifa Hindun Dalillah",
-    "Destiyani Nurhikmah",
-    "Imas Suhaeni",
-    "Putri Septiana Mubarokah",
-    "Gina Nuranggita Faridah",
-    "Deni Nugraha"
-  ];
-
-  const teamTwo = [
-    "Maya Mutiasari",
-    "Aris Widayanto",
-    "Pipit Pitriawati",
-    "Cecep Rusmanto",
-    "Anisa Tri Wulandari",
-    "Rika Rahayu"
-  ];
-
-  const getRowsByPpl = (pplName) => {
-    return allData.filter(item =>
-      String(item.NAMA_PPL || "")
-        .trim()
-        .toLowerCase() ===
-      pplName.trim().toLowerCase()
-    );
-  };
-
-  const getPplProgress = (pplName) => {
-    const rows =
-      getRowsByPpl(pplName);
-
-    const muatan =
-      rows.reduce((sum, item) =>
-        sum + getMuatan(item), 0
-      );
-
-    const approved =
-      rows.reduce((sum, item) =>
-        sum + angka(item.APPROVED), 0
-      );
-
-    return muatan > 0
-      ? (approved / muatan) * 100
-      : 0;
-  };
-
-  const getTeamProgress = (members) => {
-    let totalMuatan = 0;
-    let totalApproved = 0;
-
-    members.forEach(name => {
-      const rows =
-        getRowsByPpl(name);
-
-      totalMuatan += rows.reduce((sum, item) =>
-        sum + getMuatan(item), 0
-      );
-
-      totalApproved += rows.reduce((sum, item) =>
-        sum + angka(item.APPROVED), 0
-      );
-    });
-
-    return totalMuatan > 0
-      ? (totalApproved / totalMuatan) * 100
-      : 0;
-  };
-
-  const teamOneProgress =
-    getTeamProgress(teamOne);
-
-  const teamTwoProgress =
-    getTeamProgress(teamTwo);
-
-  const teamOneProgressEl =
-    document.getElementById("teamOneProgress");
-
-  const teamTwoProgressEl =
-    document.getElementById("teamTwoProgress");
-
-  if (teamOneProgressEl) {
-    teamOneProgressEl.textContent =
-      formatPercent(teamOneProgress);
-  }
-
-  if (teamTwoProgressEl) {
-    teamTwoProgressEl.textContent =
-      formatPercent(teamTwoProgress);
-  }
-
-  const renderList = (container, members) => {
-    let html = "";
-
-    members
-      .slice()
-      .sort((a, b) =>
-        a.localeCompare(
-          b,
-          "id",
-          { sensitivity: "base" }
-        )
+  Object.entries(summary)
+    .sort((a, b) =>
+      a[0].localeCompare(
+        b[0],
+        "id",
+        { sensitivity: "base" }
       )
-      .forEach(name => {
-        const progress =
-          getPplProgress(name);
+    )
+    .forEach(([ppl, data]) => {
 
-        html += `
-          <div class="team-person">
-            <div class="team-person-head">
-              <div class="team-person-name">
-                ${name}
-              </div>
+      // Progress aktual
+      const progress =
+        data.muatan > 0
+          ? ((data.submit + data.approve) / data.muatan) * 100
+          : 0;
 
-              <div class="team-person-progress">
-                ${formatPercent(progress)}
-              </div>
-            </div>
+      const progressClass =
+        getProgressClass(progress);
 
-            <div class="team-progress-track">
+      const open = Math.max(
+        angka(data.muatan) -
+        angka(data.submit) -
+        angka(data.reject) -
+        angka(data.approve),
+        0
+      );
+
+      const initials = ppl
+        .trim()
+        .charAt(0)
+        .toUpperCase();
+
+      container.innerHTML += `
+        <div class="ppl-card">
+          <div class="ppl-name">
+            <span class="ppl-avatar">
+              ${initials}
+            </span>
+            <span>${ppl}</span>
+            <span class="badge ${progressClass}">
+              ${formatPercent(progress)}
+            </span>
+          </div>
+
+          <div class="ppl-progress">
+            <div class="ppl-progress-track">
               <div
-                class="team-progress-fill"
+                class="ppl-progress-fill"
                 style="width:${Math.min(progress, 100)}%">
               </div>
             </div>
           </div>
-        `;
-      });
 
-    container.innerHTML = html;
-  };
+          <div class="ppl-stats">
+            <div class="ppl-stat">
+              <span>Assignment</span>
+              <strong>${formatNumber(data.muatan)}</strong>
+            </div>
 
-  renderList(teamOneContainer, teamOne);
-  renderList(teamTwoContainer, teamTwo);
+            <div class="ppl-stat">
+              <span>Open</span>
+              <strong>${formatNumber(open)}</strong>
+            </div>
+
+            <div class="ppl-stat">
+              <span>Submit</span>
+              <strong>${formatNumber(data.submit)}</strong>
+            </div>
+
+            <div class="ppl-stat">
+              <span>Approved</span>
+              <strong>${formatNumber(data.approve)}</strong>
+            </div>
+          </div>
+        </div>
+      `;
+    });
 }
 
 function renderTopPpl() {
@@ -709,24 +713,6 @@ function renderPplSummary() {
     summary[ppl].approve += angka(item.APPROVED);
   });
 
-  // Periode pendataan
-  const startDate = new Date("2026-06-15");
-  const endDate = new Date("2026-08-31");
-  const today = new Date();
-
-  const msPerDay = 1000 * 60 * 60 * 24;
-
-  const totalHari =
-    Math.ceil((endDate - startDate) / msPerDay) + 1;
-
-  const hariBerjalan = Math.min(
-    Math.max(
-      Math.ceil((today - startDate) / msPerDay) + 1,
-      1
-    ),
-    totalHari
-  );
-
   Object.entries(summary)
     .sort((a, b) =>
       a[0].localeCompare(
@@ -751,23 +737,8 @@ function renderPplSummary() {
           ? ((data.submit + data.approve) / data.muatan) * 100
           : 0;
 
-      // Target kumulatif sampai hari ini
-      const targetHariIni =
-        data.muatan * (hariBerjalan / totalHari);
-
-      // Digunakan hanya untuk menentukan warna badge
-      const targetCapaian =
-        targetHariIni > 0
-          ? ((data.submit + data.approve) / targetHariIni) * 100
-          : 0;
-
-      let progressClass = "success";
-
-      if (targetCapaian < 80) {
-        progressClass = "danger";
-      } else if (targetCapaian < 100) {
-        progressClass = "warning";
-      }
+      const progressClass =
+        getProgressClass(progress);
 
       let status = "Belum Mulai";
       let statusClass = "empty";
@@ -799,144 +770,6 @@ function renderPplSummary() {
             </span>
           </td>
         </tr>
-      `;
-    });
-}
-
-function renderPplCards() {
-  const container = document.getElementById("pplCards");
-
-  container.innerHTML = "";
-
-  const summary = {};
-
-  allData.forEach(item => {
-    const ppl = item.NAMA_PPL || "-";
-
-    if (!summary[ppl]) {
-      summary[ppl] = {
-        muatan: 0,
-        submit: 0,
-        reject: 0,
-        approve: 0
-      };
-    }
-
-    summary[ppl].muatan += getMuatan(item);
-    summary[ppl].submit += angka(item.SUBMIT);
-    summary[ppl].reject += angka(item.REJECT);
-    summary[ppl].approve += angka(item.APPROVED);
-  });
-
-  // Periode pendataan
-  const startDate = new Date("2026-06-15");
-  const endDate = new Date("2026-08-31");
-  const today = new Date();
-
-  const msPerDay = 1000 * 60 * 60 * 24;
-
-  const totalHari =
-    Math.ceil((endDate - startDate) / msPerDay) + 1;
-
-  const hariBerjalan = Math.min(
-    Math.max(
-      Math.ceil((today - startDate) / msPerDay) + 1,
-      1
-    ),
-    totalHari
-  );
-
-  Object.entries(summary)
-    .sort((a, b) =>
-      a[0].localeCompare(
-        b[0],
-        "id",
-        { sensitivity: "base" }
-      )
-    )
-    .forEach(([ppl, data]) => {
-
-      // Progress aktual
-      const progress =
-        data.muatan > 0
-          ? ((data.submit + data.approve) / data.muatan) * 100
-          : 0;
-
-      // Target sampai hari ini
-      const targetHariIni =
-        data.muatan * (hariBerjalan / totalHari);
-
-      const targetCapaian =
-        targetHariIni > 0
-          ? ((data.submit + data.approve) / targetHariIni) * 100
-          : 0;
-
-      let progressClass = "success";
-
-      if (targetCapaian < 80) {
-        progressClass = "danger";
-      } else if (targetCapaian < 100) {
-        progressClass = "warning";
-      }
-
-      const open = Math.max(
-        angka(data.muatan) -
-        angka(data.submit) -
-        angka(data.reject) -
-        angka(data.approve),
-        0
-      );
-
-      const initials = ppl
-        .trim()
-        .charAt(0)
-        .toUpperCase();
-
-      container.innerHTML += `
-        <div class="ppl-card">
-          <div class="ppl-name">
-            <span class="ppl-avatar">
-              ${initials}
-            </span>
-
-            <span>${ppl}</span>
-
-            <span class="badge ${progressClass}">
-              ${formatPercent(progress)}
-            </span>
-          </div>
-
-          <div class="ppl-progress">
-            <div class="ppl-progress-track">
-              <div
-                class="ppl-progress-fill"
-                style="width:${Math.min(progress, 100)}%">
-              </div>
-            </div>
-          </div>
-
-          <div class="ppl-stats">
-            <div class="ppl-stat">
-              <span>Assignment</span>
-              <strong>${formatNumber(data.muatan)}</strong>
-            </div>
-
-            <div class="ppl-stat">
-              <span>Open</span>
-              <strong>${formatNumber(open)}</strong>
-            </div>
-
-            <div class="ppl-stat">
-              <span>Submit</span>
-              <strong>${formatNumber(data.submit)}</strong>
-            </div>
-
-            <div class="ppl-stat">
-              <span>Approved</span>
-              <strong>${formatNumber(data.approve)}</strong>
-            </div>
-          </div>
-        </div>
       `;
     });
 }
