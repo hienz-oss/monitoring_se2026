@@ -692,7 +692,10 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+  padding-bottom: 10px;
   font-size: 15px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
 }
 
 .section-title i {
@@ -900,7 +903,10 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+  padding-bottom: 10px;
   font-size: 15px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border)
 }
 
 .panel-title i {
@@ -1053,12 +1059,6 @@ body {
   padding: 12px;
   box-shadow: var(--shadow);
 
-}
-
-.section-title {
-  margin-bottom: 10px;
-  font-size: 16px;
-  font-weight: 700;
 }
 
 .toolbar input,
