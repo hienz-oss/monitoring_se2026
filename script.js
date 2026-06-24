@@ -836,8 +836,16 @@ function renderTable(data) {
         ? ((submit + approve) / total) * 100
         : 0;
 
-    const status =
-      getStatus(item);
+    let status = "Belum Mulai";
+    let statusClass = "empty";
+
+    if (progress >= 100) {
+      status = "Selesai";
+      statusClass = "done";
+    } else if (progress > 0) {
+      status = "Belum Selesai";
+      statusClass = "pending";
+    }
 
     tbody.innerHTML += `
       <tr>
@@ -850,7 +858,7 @@ function renderTable(data) {
         <td align="center">${formatNumber(reject)}</td>
         <td align="center">${formatNumber(approve)}</td>
         <td align="center">${formatPercent(progress)}</td>
-        <td><span class="status ${status.className}">${status.text}</span></td>
+        <td><span class="status ${statusClass}">${status}</span></td>
       </tr>
     `;
   });
@@ -914,8 +922,7 @@ function renderPagination(data) {
   container.innerHTML = `
     <div class="pagination-info">
       Menampilkan
-      <strong>${startRecord}</strong>–
-      <strong>${endRecord}</strong>
+      <strong>${startRecord}</strong>–<strong>${endRecord}</strong>
       dari
       <strong>${formatNumber(data.length)}</strong>
       data
