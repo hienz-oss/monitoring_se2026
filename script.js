@@ -226,11 +226,26 @@ function renderTargetHariIni() {
 }
 
 function renderFilter() {
+  const desaFilter = document.getElementById("desaFilter");
   const pplFilter = document.getElementById("pplFilter");
+
+  const desaList = [...new Set(
+    allData.map(item => item.NAMA_DESA).filter(Boolean)
+  )].sort();
 
   const pplList = [...new Set(
     allData.map(item => item.NAMA_PPL).filter(Boolean)
-  )];
+  )].sort();
+
+  desaList.forEach(desa => {
+    const option = document.createElement("option");
+    option.value = desa;
+    option.textContent = desa
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+
+    desaFilter.appendChild(option);
+  });
 
   pplList.forEach(ppl => {
     const option = document.createElement("option");
@@ -242,6 +257,7 @@ function renderFilter() {
 
 function getFilteredData() {
   const search = document.getElementById("searchInput").value.toLowerCase();
+  const desa = document.getElementById("desaFilter").value;
   const ppl = document.getElementById("pplFilter").value;
   const statusValue = document.getElementById("statusFilter").value;
 
@@ -250,6 +266,9 @@ function getFilteredData() {
       String(item.NAMA_DESA || "").toLowerCase().includes(search) ||
       String(item.NAMA_SLS || "").toLowerCase().includes(search) ||
       String(item.NAMA_PPL || "").toLowerCase().includes(search);
+
+    const matchDesa =
+      !desa || item.NAMA_DESA === desa;
 
     const matchPpl =
       !ppl || item.NAMA_PPL === ppl;
@@ -260,7 +279,12 @@ function getFilteredData() {
     const matchStatus =
       !statusValue || status === statusValue;
 
-    return matchSearch && matchPpl && matchStatus;
+    return (
+      matchSearch &&
+      matchDesa &&
+      matchPpl &&
+      matchStatus
+    );
   });
 }
 
@@ -1029,6 +1053,10 @@ clearSearch.addEventListener("click", () => {
 
   searchInput.focus();
 });
+
+document
+  .getElementById("desaFilter")
+  .addEventListener("change", resetPageAndRender);
 
 document
   .getElementById("pplFilter")
