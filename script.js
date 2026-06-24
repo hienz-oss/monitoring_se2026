@@ -737,13 +737,18 @@ function renderPplSummary() {
     summary[ppl].approve += angka(item.APPROVED);
   });
 
+  // ====== BARIS PER PPL ======
+  let total = {
+    muatan: 0,
+    open: 0,
+    submit: 0,
+    reject: 0,
+    approve: 0
+  };
+
   Object.entries(summary)
     .sort((a, b) =>
-      a[0].localeCompare(
-        b[0],
-        "id",
-        { sensitivity: "base" }
-      )
+      a[0].localeCompare(b[0], "id", { sensitivity: "base" })
     )
     .forEach(([ppl, data]) => {
 
@@ -755,14 +760,12 @@ function renderPplSummary() {
         0
       );
 
-      // Progress aktual
       const progress =
         data.muatan > 0
           ? ((data.submit + data.approve) / data.muatan) * 100
           : 0;
 
-      const progressClass =
-        getProgressClass(progress);
+      const progressClass = getProgressClass(progress);
 
       let status = "Belum Mulai";
       let statusClass = "empty";
@@ -774,6 +777,13 @@ function renderPplSummary() {
         status = "Belum Selesai";
         statusClass = "pending";
       }
+
+      // akumulasi total
+      total.muatan += data.muatan;
+      total.submit += data.submit;
+      total.reject += data.reject;
+      total.approve += data.approve;
+      total.open += data.open;
 
       tbody.innerHTML += `
         <tr>
@@ -796,6 +806,46 @@ function renderPplSummary() {
         </tr>
       `;
     });
+
+  // ====== BARIS TOTAL ======
+  const totalProgress =
+    total.muatan > 0
+      ? ((total.submit + total.approve) / total.muatan) * 100
+      : 0;
+
+  const totalProgressClass = getProgressClass(totalProgress);
+
+  let totalStatus = "Belum Mulai";
+  let totalStatusClass = "empty";
+
+  if (totalProgress >= 100) {
+    totalStatus = "Selesai";
+    totalStatusClass = "done";
+  } else if (totalProgress > 0) {
+    totalStatus = "Belum Selesai";
+    totalStatusClass = "pending";
+  }
+
+  tbody.innerHTML += `
+    <tr style="font-weight:bold; background:#f2f2f2;">
+      <td>JUMLAH TOTAL</td>
+      <td align="center">${formatNumber(total.muatan)}</td>
+      <td align="center">${formatNumber(total.open)}</td>
+      <td align="center">${formatNumber(total.submit)}</td>
+      <td align="center">${formatNumber(total.reject)}</td>
+      <td align="center">${formatNumber(total.approve)}</td>
+      <td align="center">
+        <span class="badge ${totalProgressClass}">
+          ${formatPercent(totalProgress)}
+        </span>
+      </td>
+      <td>
+        <span class="status ${totalStatusClass}">
+          ${totalStatus}
+        </span>
+      </td>
+    </tr>
+  `;
 }
 
 function renderTable(data) {
