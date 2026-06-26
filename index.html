@@ -121,7 +121,7 @@
                             <h3>Tampilkan/Sembunyikan</h3>
 
                             <label class="setting-item">
-                                <span>Progress PPL</span>
+                                <span>Rekapitulasi Capaian PPL</span>
                                 <label class="mini-switch">
                                     <input type="checkbox" id="togglePplTable" checked>
                                     <span class="mini-slider"></span>
@@ -129,7 +129,7 @@
                             </label>
 
                             <label class="setting-item">
-                                <span>Progress SLS</span>
+                                <span>Rekapitulasi Capaian SLS</span>
                                 <label class="mini-switch">
                                     <input type="checkbox" id="toggleDetailTable" checked>
                                     <span class="mini-slider"></span>
@@ -268,6 +268,30 @@
                             </tr>
                         </thead>
                         <tbody id="pplBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="desaTableSection" class="summary-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-users-gear"></i>
+                    Rekapitulasi Capaian Desa
+                </h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Desa</th>
+                                <th>Assignment</th>
+                                <th>Open</th>
+                                <th>Submit</th>
+                                <th>Reject</th>
+                                <th>Approved</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="desaBody"></tbody>
                     </table>
                 </div>
             </div>
