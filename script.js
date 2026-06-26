@@ -31,7 +31,7 @@ async function loadData() {
   const loader =
     document.getElementById("tableLoader");
 
-  updateSyncStatus("Memeriksa data...");
+  updateSyncStatus("Memeriksa data, mohon tunggu ...");
   renderTopPplSkeleton();
   renderTopDesaSkeleton();
 
@@ -106,7 +106,7 @@ async function loadData() {
 
   } catch (error) {
     console.error("Gagal mengambil data:", error);
-    updateSyncStatus("Gagal sinkron");
+    updateSyncStatus("Gagal sinkronisasi data");
   } finally {
     if (loader) {
       loader.classList.add("hide");
@@ -451,6 +451,7 @@ function renderDashboard() {
   renderTopDesa();
   renderPplCards();
   renderPplSummary();
+  renderDesaSummary();
   renderTable(data);
   renderPagination(data);
 }
@@ -788,6 +789,143 @@ function renderPplSummary() {
       tbody.innerHTML += `
         <tr>
           <td>${ppl}</td>
+          <td align="center">${formatNumber(data.muatan)}</td>
+          <td align="center">${formatNumber(data.open)}</td>
+          <td align="center">${formatNumber(data.submit)}</td>
+          <td align="center">${formatNumber(data.reject)}</td>
+          <td align="center">${formatNumber(data.approve)}</td>
+          <td align="center">
+            <span class="badge ${progressClass}">
+              ${formatPercent(progress)}
+            </span>
+          </td>
+          <td>
+            <span class="status ${statusClass}">
+              ${status}
+            </span>
+          </td>
+        </tr>
+      `;
+    });
+
+  // ====== BARIS TOTAL ======
+  const totalProgress =
+    total.muatan > 0
+      ? ((total.submit + total.approve) / total.muatan) * 100
+      : 0;
+
+  const totalProgressClass = getProgressClass(totalProgress);
+
+  let totalStatus = "Belum Mulai";
+  let totalStatusClass = "empty";
+
+  if (totalProgress >= 100) {
+    totalStatus = "Selesai";
+    totalStatusClass = "done";
+  } else if (totalProgress > 0) {
+    totalStatus = "Belum Selesai";
+    totalStatusClass = "pending";
+  }
+
+  tbody.innerHTML += `
+    <tr style="font-weight:bold; background:#f2f2f2;">
+      <td>JUMLAH TOTAL</td>
+      <td align="center">${formatNumber(total.muatan)}</td>
+      <td align="center">${formatNumber(total.open)}</td>
+      <td align="center">${formatNumber(total.submit)}</td>
+      <td align="center">${formatNumber(total.reject)}</td>
+      <td align="center">${formatNumber(total.approve)}</td>
+      <td align="center">
+        <span class="badge ${totalProgressClass}">
+          ${formatPercent(totalProgress)}
+        </span>
+      </td>
+      <td>
+        <span class="status ${totalStatusClass}">
+          ${totalStatus}
+        </span>
+      </td>
+    </tr>
+  `;
+}
+
+function renderDesaSummary() {
+  const tbody = document.getElementById("desaBody");
+
+  tbody.innerHTML = "";
+
+  const summary = {};
+
+  allData.forEach(item => {
+    const desa = item.NAMA_DESA || "-";
+
+    if (!summary[desa]) {
+      summary[desa] = {
+        muatan: 0,
+        open: 0,
+        submit: 0,
+        reject: 0,
+        approve: 0
+      };
+    }
+
+    summary[desa].muatan += getMuatan(item);
+    summary[desa].submit += angka(item.SUBMIT);
+    summary[desa].reject += angka(item.REJECT);
+    summary[desa].approve += angka(item.APPROVED);
+  });
+
+  // ====== BARIS PER PPL ======
+  let total = {
+    muatan: 0,
+    open: 0,
+    submit: 0,
+    reject: 0,
+    approve: 0
+  };
+
+  Object.entries(summary)
+    .sort((a, b) =>
+      a[0].localeCompare(b[0], "id", { sensitivity: "base" })
+    )
+    .forEach(([desa, data]) => {
+
+      data.open = Math.max(
+        data.muatan -
+        data.submit -
+        data.reject -
+        data.approve,
+        0
+      );
+
+      const progress =
+        data.muatan > 0
+          ? ((data.submit + data.approve) / data.muatan) * 100
+          : 0;
+
+      const progressClass = getProgressClass(progress);
+
+      let status = "Belum Mulai";
+      let statusClass = "empty";
+
+      if (progress >= 100) {
+        status = "Selesai";
+        statusClass = "done";
+      } else if (progress > 0) {
+        status = "Belum Selesai";
+        statusClass = "pending";
+      }
+
+      // akumulasi total
+      total.muatan += data.muatan;
+      total.submit += data.submit;
+      total.reject += data.reject;
+      total.approve += data.approve;
+      total.open += data.open;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${desa}</td>
           <td align="center">${formatNumber(data.muatan)}</td>
           <td align="center">${formatNumber(data.open)}</td>
           <td align="center">${formatNumber(data.submit)}</td>
