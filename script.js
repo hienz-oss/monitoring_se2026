@@ -1,31 +1,9 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzfDoxWgaL47AzjxO-d1AtvBcYx8n0z-iMZcZ4gtSCiY_QwAgHj_edQ0Bq8q52e3HugdQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxjkHfpfCarb_m504_5KESX3zEg3PYrS3toyWFtMNt9GzJU0Wh7qG5l4hDL0U1ic6-LHQ/exec";
 
 let allData = [];
 
 let currentPage = 1;
 const rowsPerPage = 10;
-
-function createDataSignature(data) {
-  return JSON.stringify(
-    data
-      .map(item => ({
-        desa: item.NAMA_DESA || "",
-        sls: item.NAMA_SLS || "",
-        ppl: item.NAMA_PPL || "",
-        pml: item.NAMA_PML || "",
-        muatan: getMuatan(item),
-        submit: angka(item.SUBMIT),
-        reject: angka(item.REJECT),
-        approved: angka(item.APPROVED)
-      }))
-      .sort((a, b) =>
-        `${a.desa}-${a.sls}-${a.ppl}`.localeCompare(
-          `${b.desa}-${b.sls}-${b.ppl}`,
-          "id"
-        )
-      )
-  );
-}
 
 async function loadData() {
   const loader =
@@ -112,6 +90,43 @@ async function loadData() {
       loader.classList.add("hide");
     }
   }
+}
+
+async function updateCell(row, field, value) {
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        row,
+        field,
+        value
+      })
+    });
+  } catch (err) {
+    console.error("Update gagal:", err);
+  }
+}
+
+function createDataSignature(data) {
+  return JSON.stringify(
+    data
+      .map(item => ({
+        desa: item.NAMA_DESA || "",
+        sls: item.NAMA_SLS || "",
+        ppl: item.NAMA_PPL || "",
+        pml: item.NAMA_PML || "",
+        muatan: getMuatan(item),
+        submit: angka(item.SUBMIT),
+        reject: angka(item.REJECT),
+        approved: angka(item.APPROVED)
+      }))
+      .sort((a, b) =>
+        `${a.desa}-${a.sls}-${a.ppl}`.localeCompare(
+          `${b.desa}-${b.sls}-${b.ppl}`,
+          "id"
+        )
+      )
+  );
 }
 
 function getMuatan(item) {
@@ -1065,11 +1080,19 @@ function renderTable(data) {
         <td>${item.NAMA_DESA || ""}</td>
         <td>${item.NAMA_SLS || ""}</td>
         <td>${item.NAMA_PPL || ""}</td>
-        <td align="center">${formatNumber(total)}</td>
+        <td align="center">
+          <input class="cell-input" value="${total}" data-row="${item._row}" data-field="PRELIST"/>
+        </td>
         <td align="center">${formatNumber(open)}</td>
-        <td align="center">${formatNumber(submit)}</td>
-        <td align="center">${formatNumber(reject)}</td>
-        <td align="center">${formatNumber(approve)}</td>
+        <td align="center">
+          <input class="cell-input" value="${submit}" data-row="${item._row}" data-field="SUBMIT"/>
+        </td>
+        <td align="center">
+          <input class="cell-input" value="${reject}" data-row="${item._row}" data-field="REJECT"/>
+        </td>
+        <td align="center">
+          <input class="cell-input" value="${approve}" data-row="${item._row}" data-field="APPROVED"/>
+        </td>
         <td align="center">${formatPercent(progress)}</td>
         <td><span class="status ${statusClass}">${status}</span></td>
       </tr>
@@ -1393,3 +1416,13 @@ if (refreshBtn) {
     }
   });
 }
+
+document.addEventListener("input", (e) => {
+  if (!e.target.classList.contains("cell-input")) return;
+
+  const row = e.target.dataset.row;
+  const field = e.target.dataset.field;
+  const value = e.target.value;
+
+  updateCell(row, field, value);
+});
