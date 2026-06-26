@@ -1,7 +1,6 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzTmNDECChiCRRPtotPq0JHu0IbEVb1qBrK6mZgbNftBSXez2r1IeMeWu2KGRJVV4MiEg/exec";
 
 let allData = [];
-let shownWarnings = new Set();
 
 let currentPage = 1;
 const rowsPerPage = 10;
@@ -92,30 +91,6 @@ async function loadData() {
       loader.classList.add("hide");
     }
   }
-}
-
-async function updateCell(row, field, value) {
-  try {
-    const url = `${API_URL}?action=update&row=${row}&field=${field}&value=${encodeURIComponent(value)}`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    console.log("UPDATED:", data);
-
-    // 🔥 update local data (tanpa reload)
-    updateLocalData(row, field, value);
-
-    // 🔥 refresh UI saja (lebih ringan)
-    renderDashboard();
-
-  } catch (err) {
-    console.error("Update gagal:", err);
-  }
-}
-
-function isOverApproved(total, approved) {
-  return approved > total;
 }
 
 function updateLocalData(row, field, value) {
@@ -1068,17 +1043,6 @@ function renderTable(data) {
     const approve =
       angka(item.APPROVED);
 
-    const key = item._row;
-
-    if (approve > total && !shownWarnings.has(key)) {
-      showToast(
-        `⚠ ${item.NAMA_SLS || "Data"} : Approved melebihi Assignment`,
-        "warning"
-      );
-
-      shownWarnings.add(key);
-    }
-
     const open =
       Math.max(
         total -
@@ -1109,19 +1073,11 @@ function renderTable(data) {
         <td>${item.NAMA_DESA || ""}</td>
         <td>${item.NAMA_SLS || ""}</td>
         <td>${item.NAMA_PPL || ""}</td>
-        <td align="center">
-          <input class="cell-input" value="${total}" data-row="${item._row}" data-field="PRELIST"/>
-        </td>
+        <td align="center">${formatNumber(total)}</td>
         <td align="center">${formatNumber(open)}</td>
-        <td align="center">
-          <input class="cell-input" value="${submit}" data-row="${item._row}" data-field="SUBMIT"/>
-        </td>
-        <td align="center">
-          <input class="cell-input" value="${reject}" data-row="${item._row}" data-field="REJECT"/>
-        </td>
-        <td align="center">
-          <input class="cell-input" value="${approve}" data-row="${item._row}" data-field="APPROVED"/>
-        </td>
+        <td align="center">${formatNumber(submit)}</td>
+        <td align="center">${formatNumber(reject)}</td>
+        <td align="center">${formatNumber(approve)}</td>
         <td align="center">${formatPercent(progress)}</td>
         <td><span class="status ${statusClass}">${status}</span></td>
       </tr>
@@ -1228,24 +1184,6 @@ function changePage(page) {
     );
 
   renderDashboard();
-}
-
-function showToast(message, type = "warning") {
-  const toast = document.createElement("div");
-
-  toast.className = `toast toast-${type}`;
-  toast.textContent = message;
-
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.classList.add("show");
-  }, 10);
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
 }
 
 /* =========================
