@@ -1,6 +1,7 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzTmNDECChiCRRPtotPq0JHu0IbEVb1qBrK6mZgbNftBSXez2r1IeMeWu2KGRJVV4MiEg/exec";
 
 let allData = [];
+let shownWarnings = new Set();
 
 let currentPage = 1;
 const rowsPerPage = 10;
@@ -52,6 +53,7 @@ async function loadData() {
       renderFilter();
     }
 
+    shownWarnings = new Set();
     renderDashboard();
 
     if (isFirstLoad || isDataChanged) {
@@ -101,9 +103,26 @@ async function updateCell(row, field, value) {
 
     console.log("UPDATED:", data);
 
+    // 🔥 update local data (tanpa reload)
+    updateLocalData(row, field, value);
+
+    // 🔥 refresh UI saja (lebih ringan)
+    renderDashboard();
+
   } catch (err) {
     console.error("Update gagal:", err);
   }
+}
+
+function isOverApproved(total, approved) {
+  return approved > total;
+}
+
+function updateLocalData(row, field, value) {
+  const item = allData.find(x => x._row == row);
+  if (!item) return;
+
+  item[field] = isNaN(value) ? value : Number(value);
 }
 
 function createDataSignature(data) {
@@ -1049,6 +1068,17 @@ function renderTable(data) {
     const approve =
       angka(item.APPROVED);
 
+    const key = item._row;
+
+    if (approve > total && !shownWarnings.has(key)) {
+      showToast(
+        `⚠ ${item.NAMA_SLS || "Data"} : Approved melebihi Assignment`,
+        "warning"
+      );
+
+      shownWarnings.add(key);
+    }
+
     const open =
       Math.max(
         total -
@@ -1198,6 +1228,24 @@ function changePage(page) {
     );
 
   renderDashboard();
+}
+
+function showToast(message, type = "warning") {
+  const toast = document.createElement("div");
+
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("show");
+  }, 10);
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 /* =========================
