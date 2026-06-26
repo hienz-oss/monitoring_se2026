@@ -94,14 +94,13 @@ async function loadData() {
 
 async function updateCell(row, field, value) {
   try {
-    await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        row,
-        field,
-        value
-      })
-    });
+    const url = `${API_URL}?action=update&row=${row}&field=${field}&value=${encodeURIComponent(value)}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    console.log("UPDATED:", data);
+
   } catch (err) {
     console.error("Update gagal:", err);
   }
