@@ -30,7 +30,7 @@
   --badge-warning-bg: #fffbeb;
   --badge-warning-border: #fde68a;
   --badge-warning-text: #b45309;
-  
+
   --badge-danger-bg: #fef2f2;
   --badge-danger-border: #fecaca;
   --badge-danger-text: #dc2626;
@@ -1278,6 +1278,18 @@ tbody tr {
 
 tbody tr:hover {
   background: var(--row-hover);
+}
+
+.cell-input {
+  width: 40px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.cell-input:focus {
+  outline: 1px solid #4f46e5;
 }
 
 .status {
