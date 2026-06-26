@@ -289,12 +289,13 @@ function getFilteredData() {
 }
 
 function getStatus(item) {
-  const total = getMuatan(item)
+  const total = getMuatan(item);
+  const submit = angka(item.SUBMIT);
   const approve = angka(item.APPROVED);
 
   const progress =
     total > 0
-      ? (approve / total) * 100
+      ? ((submit + approve) / total) * 100
       : 0;
 
   if (progress >= 100) {
@@ -445,7 +446,7 @@ function renderDashboard() {
 
   document.getElementById("totalProgress").textContent =
     formatPercent(progress);
-  
+
   renderTargetHariIni();
   renderTopPpl();
   renderTopDesa();
