@@ -1519,6 +1519,10 @@ tbody tr:hover {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .ppl-cards {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
   .ppl-name {
     font-size: 14px;
   }
