@@ -227,6 +227,29 @@ function formatPercent(value) {
   }).format(value) + "%";
 }
 
+function formatDelta(progress) {
+  const target = getTargetHariIni();
+  const delta = progress - target;
+
+  if (Math.abs(delta) < 0.005) {
+    return "±0,00%";
+  }
+
+  const sign = delta > 0 ? "+" : "-";
+
+  return sign + formatPercent(Math.abs(delta));
+
+}
+
+function getDeltaProgress(progress) {
+  const target = getTargetHariIni();
+  const delta = progress - target;
+
+  const sign = delta > 0 ? "+" : delta < 0 ? "-" : "±";
+
+  return sign + formatPercent(Math.abs(delta));
+}
+
 function updateSyncStatus(text) {
   document.getElementById("syncStatusText").textContent = text;
 }
@@ -530,8 +553,12 @@ function renderDashboard() {
   document.getElementById("totalApprove").textContent =
     formatNumber(totalApprove);
 
-  document.getElementById("totalProgress").textContent =
-    formatPercent(progress);
+  document.getElementById("totalProgress").innerHTML = `
+    ${formatPercent(progress)}
+    <small class="${getProgressClass(progress)}">
+      (${formatDelta(progress)})
+    </small>
+  `;
 
   renderTargetHariIni();
   renderTopPpl();
@@ -781,7 +808,6 @@ function renderTopDesa() {
 }
 
 function renderTopDesaSkeleton() {
-
   const container =
     document.getElementById("topDesaList");
 
@@ -886,6 +912,11 @@ function renderPplSummary() {
               ${formatPercent(progress)}
             </span>
           </td>
+          <td align="center">
+            <span class="delta ${progressClass}">
+              ${getDeltaProgress(progress)}
+            </span>
+          </td>
           <td>
             <span class="status ${statusClass}">
               ${status}
@@ -925,6 +956,11 @@ function renderPplSummary() {
       <td align="center">
         <span class="badge ${totalProgressClass}">
           ${formatPercent(totalProgress)}
+        </span>
+      </td>
+      <td align="center">
+        <span class="delta ${totalProgressClass}">
+          ${getDeltaProgress(totalProgress)}
         </span>
       </td>
       <td>
@@ -1023,6 +1059,11 @@ function renderDesaSummary() {
               ${formatPercent(progress)}
             </span>
           </td>
+          <td align="center">
+            <span class="delta ${progressClass}">
+              ${getDeltaProgress(progress)}
+            </span>
+          </td>
           <td>
             <span class="status ${statusClass}">
               ${status}
@@ -1062,6 +1103,11 @@ function renderDesaSummary() {
       <td align="center">
         <span class="badge ${totalProgressClass}">
           ${formatPercent(totalProgress)}
+        </span>
+      </td>
+      <td align="center">
+        <span class="delta ${totalProgressClass}">
+          ${getDeltaProgress(totalProgress)}
         </span>
       </td>
       <td>
