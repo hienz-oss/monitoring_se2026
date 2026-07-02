@@ -1909,7 +1909,7 @@ tbody tr:hover {
 @media (max-width: 768px) {
   .chart-wrapper {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 12px;
   }
 
   .chart-card{
@@ -1919,10 +1919,16 @@ tbody tr:hover {
   .bar-chart {
     height: 170px;
     gap: 6px;
+    width: max-content;
+    justify-content: center;
   }
 
   .bar-track {
     height: 140px;
+  }
+
+  .bar-item{
+    flex: 1;
   }
 
   .bar-label{
