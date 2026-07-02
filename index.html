@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,8 @@
     <link rel="icon" href="logo_se2026s.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap"
+        rel="stylesheet">
     <meta name="description" content="Dashboard Monitoring Progres Pendataan Lapangan SE2026">
     <meta property="og:title" content="Monitoring SE2026">
     <meta property="og:description" content="Dashboard Monitoring Progres Pendataan Lapangan SE2026">
@@ -42,18 +44,18 @@
 
                     <div id="regionPanel" class="region-panel hide">
                         <div class="region-title">
-                                <div class="region-user-content">
-                                    <img id="regionAvatar" src="default-avatar.png" class="user-avatar">
-                                    <div class="region-user-text">
-                                        <span id="regionTitle">Uhin Awaludin</span>
-                                        <small id="regionUserId">Sobat ID: 320822020033</small>
-                                        <small id="regionUserId">Pengawas (PML)</small>
-                                        <small class="badge success verified-text">
-                                            Terverifikasi
-                                            <i class="fa-solid fa-circle-check"></i>
-                                        </small>
-                                    </div>
+                            <div class="region-user-content">
+                                <img id="regionAvatar" src="default-avatar.png" class="user-avatar">
+                                <div class="region-user-text">
+                                    <span id="regionTitle">Uhin Awaludin</span>
+                                    <small id="regionUserId">Sobat ID: 320822020033</small>
+                                    <small id="regionUserId">Pengawas (PML)</small>
+                                    <small class="badge success verified-text">
+                                        Terverifikasi
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    </small>
                                 </div>
+                            </div>
                         </div>
 
                         <div class="region-meta-title">
@@ -185,23 +187,23 @@
                         <i class="fa-solid fa-bullseye"></i>
                         Target Hari Ini: -
                     </span>
-                
+
                     <span class="legend-tag success">
                         <span class="legend-dot"></span>
                         On Track / Selesai (≥ 100% Target Hari Ini)
                     </span>
-                
+
                     <span class="legend-tag warning">
                         <span class="legend-dot"></span>
                         Peringatan (80% - 99% Target Hari Ini)
                     </span>
-                
+
                     <span class="legend-tag danger">
                         <span class="legend-dot"></span>
                         Tertinggal / Butuh Atensi (&lt; 80% Target Hari Ini)
                     </span>
                 </div>
-                
+
                 <div id="pplCards" class="ppl-cards">
                     <div class="ppl-card skeleton-card"></div>
                     <div class="ppl-card skeleton-card"></div>
@@ -332,16 +334,17 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th width="110">Desa</th>
+                                    <th width="100">Desa</th>
                                     <th>SLS</th>
-                                    <th width="160">PPL</th>
-                                    <th width="80">Assignment</th>
-                                    <th width="80">Open</th>
-                                    <th width="80">Submit</th>
-                                    <th width="80">Reject</th>
+                                    <th width="130">PPL</th>
+                                    <th width="70">Assignment</th>
+                                    <th width="60">Open</th>
+                                    <th width="60">Submit</th>
+                                    <th width="60">Reject</th>
                                     <th width="80">Approved</th>
                                     <th width="80">Progress</th>
-                                    <th width="110">Status</th>
+                                    <th width="120">Status</th>
+                                    <th width="40">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="dataBody"></tbody>
@@ -360,6 +363,71 @@
         </div>
     </div>
 
+    <!-- =========================
+         EDIT MODAL
+    ========================= -->
+    <div id="editModal" class="modal-overlay hide">
+        <div class="edit-modal">
+    
+            <div class="edit-header">
+                <h3>Edit Capaian SLS</h3>
+    
+                <button id="closeEditModal" class="modal-close" title="Tutup">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+    
+            <div class="edit-body">
+    
+                <div class="form-group">
+                    <label for="editDesa">Desa</label>
+                    <input id="editDesa" type="text" readonly>
+                </div>
+    
+                <div class="form-group">
+                    <label for="editSls">SLS</label>
+                    <input id="editSls" type="text" readonly>
+                </div>
+    
+                <div class="form-group horizontal">
+                    <label for="editOpen">Open</label>
+                    <input id="editOpen" type="number" readonly>
+                </div>
+    
+                <div class="form-group horizontal">
+                    <label for="editAssignment">Assignment</label>
+                    <input id="editAssignment" type="number" min="0">
+                </div>
+    
+                <div class="form-group horizontal">
+                    <label for="editSubmit">Submit</label>
+                    <input id="editSubmit" type="number" min="0">
+                </div>
+    
+                <div class="form-group horizontal">
+                    <label for="editReject">Reject</label>
+                    <input id="editReject" type="number" min="0">
+                </div>
+    
+                <div class="form-group horizontal">
+                    <label for="editApproved">Approved</label>
+                    <input id="editApproved" type="number" min="0">
+                </div>
+    
+            </div>
+    
+            <div class="edit-footer">
+                <button id="cancelEditBtn" class="btn-secondary">Batal</button>
+                <button id="saveEditBtn" class="btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Simpan
+                </button>
+            </div>
+    
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
+
 </html>
