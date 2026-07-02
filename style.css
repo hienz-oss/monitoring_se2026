@@ -1105,7 +1105,7 @@ body {
 .toolbar input,
 .toolbar select {
   background: var(--surface);
-  padding: 10px;
+  padding: 8px;
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -1132,7 +1132,7 @@ body {
 .toolbar select:focus {
   outline: none;
   border-color: #f59e0b;
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, .15);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, .15);
 }
 
 .table-container {
@@ -1262,12 +1262,12 @@ th {
   background: var(--table-header);
   border-bottom: 2px solid var(--table-header-border);
   color: #fff;
-  padding: 14px;
+  padding: 12px 10px;
   text-align: center;
 }
 
 td {
-  padding: 5px;
+  padding: 4px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -1285,24 +1285,30 @@ tbody tr:hover {
   background: var(--row-hover);
 }
 
-.cell-input {
-  width: 40px;
-  text-align: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 4px;
-}
-
-.cell-input:focus {
-  outline: 1px solid #4f46e5;
-}
-
 .status {
   display: inline-block;
   padding: 5px 10px;
   border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+}
+
+.action-cell {
+  text-align: center;
+}
+
+.edit-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: .2s;
+}
+
+.edit-btn:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
 }
 
 .done {
@@ -1407,6 +1413,211 @@ tbody tr:hover {
   color: #cbd5e1;
 }
 
+/* =========================
+   EDIT MODAL
+========================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, .45);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+}
+
+.modal-overlay.hide {
+  display: none;
+}
+
+.edit-modal {
+  width: 480px;
+  max-width: 90vw;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.edit-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.modal-close:hover {
+  background: var(--badge-bg);
+  color: var(--text);
+}
+
+/* =========================
+   BODY
+========================= */
+
+.edit-body {
+  padding: 15px;
+  background: var(--surface);
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* INPUT */
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-group input:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, .08);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, .15);
+}
+
+/* Label di kiri (horizontal form) */
+.form-group.horizontal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-group.horizontal label {
+  width: 210px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.form-group.horizontal input {
+  flex: 1;
+}
+
+/* readonly */
+.form-group input[readonly] {
+  background: var(--badge-bg);
+  color: var(--text-muted);
+}
+
+/* number align */
+.form-group input[type="number"] {
+  text-align: right;
+}
+
+.form-group input[type="number"]::-webkit-outer-spin-button,
+.form-group input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.form-group input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.edit-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.btn-secondary,
+.btn-primary {
+  min-width: 100px;
+  padding: 8px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.btn-secondary {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  background: var(--badge-bg);
+}
+
+.btn-primary {
+  border: none;
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
 @media(max-width:1200px) {
   .ppl-cards {
     grid-template-columns: repeat(3, 1fr);
@@ -1432,13 +1643,17 @@ tbody tr:hover {
   .monitor-grid {
     grid-template-columns: 1fr;
   }
+
+  #regionText, .chevron-icon {
+    display: none;
+  }
 }
 
 @media(max-width:600px) {
   .header {
     align-items: flex-start;
     gap: 10px;
-    padding: 10px 12px;
+    padding: 15px 10px;
   }
 
   .header-left {
@@ -1452,7 +1667,7 @@ tbody tr:hover {
   }
 
   .header h1 {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.1;
   }
 
@@ -1481,17 +1696,19 @@ tbody tr:hover {
   }
 
   .region-badge {
-    max-width: 120px;
     height: 24px;
-    padding: 6px 9px;
-    font-size: 11px;
+    padding: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  i.user-profile {
-    display: none;
+  .region-badge .user-profile {
+    font-size: 25px;
+  }
+
+  #regionText, .chevron-icon {
+    display: none !important;
   }
 
   .region-panel {
@@ -1504,7 +1721,7 @@ tbody tr:hover {
   }
 
   .main {
-    padding: 0 12px;
+    padding: 0 10px;
   }
 
   .card-header i {
@@ -1534,5 +1751,19 @@ tbody tr:hover {
 
   .toolbar {
     flex-direction: column;
+  }
+
+  .edit-modal {
+    width: calc(100vw - 24px);
+  }
+  
+  .form-group.horizontal {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  
+  .form-group.horizontal label {
+    width: auto;
   }
 }
