@@ -146,8 +146,8 @@ body {
 
 .theme-switch {
   position: relative;
-  width: 42px;
-  height: 23px;
+  width: 38px;
+  height: 22px;
 }
 
 .theme-switch input {
@@ -164,6 +164,11 @@ body {
   border-radius: 999px;
   cursor: pointer;
   transition: .25s;
+  box-shadow:
+      inset 0 1px 3px rgba(146, 64, 14, .28),
+      /* shadow atas */
+      inset 0 -1px 1px rgba(255, 255, 255, .65);
+    /* highlight bawah */
 }
 
 .theme-slider::before {
@@ -171,8 +176,8 @@ body {
   font-family: "Font Awesome 6 Free";
   font-weight: 900;
   position: absolute;
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
   left: 2px;
   top: 2px;
   background: #fff;
@@ -191,7 +196,7 @@ body {
 }
 
 .theme-switch input:checked+.theme-slider::before {
-  transform: translateX(20px);
+  transform: translateX(16px);
   content: "\f186";
   color: #334155;
 }
@@ -495,7 +500,7 @@ body {
   top: 38px;
   right: 0;
   z-index: 300;
-  min-width: 250px;
+  min-width: 260px;
   padding: 12px;
   line-height: 1em;
   background: var(--surface);
@@ -514,6 +519,10 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
+.setting-panel i {
+  margin-right: 5px;
+}
+
 .setting-panel.hide {
   display: none;
 }
@@ -526,10 +535,15 @@ body {
   color: var(--text);
 }
 
+.setting-item span i {
+  font-size: 8px !important;
+  margin-right: 5px;
+}
+
 .setting-panel label {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 4px 0;
   margin: 0;
   color: var(--text);
@@ -543,8 +557,8 @@ body {
 
 .mini-switch {
   position: relative;
-  width: 42px;
-  height: 22px;
+  width: 32px;
+  height: 18px;
   flex-shrink: 0;
 }
 
@@ -566,10 +580,10 @@ body {
 .mini-slider::before {
   content: "";
   position: absolute;
-  width: 16px;
-  height: 16px;
-  left: 3px;
-  top: 3px;
+  width: 14px;
+  height: 14px;
+  left: 2px;
+  top: 2px;
   background: #fff;
   border-radius: 50%;
   transition: .2s;
@@ -580,7 +594,7 @@ body {
 }
 
 .mini-switch input:checked+.mini-slider::before {
-  transform: translateX(20px);
+  transform: translateX(14px);
 }
 
 [data-theme="dark"] .mini-slider {
@@ -729,6 +743,10 @@ body {
 .clear-search:hover {
   color: #f59e0b;
 }
+
+/* =========================
+   CARD PPL
+========================= */
 
 .ppl-card-section {
   background: var(--surface);
@@ -941,6 +959,128 @@ body {
   }
 }
 
+/* =========================
+   CHART PPL & DESA
+========================= */
+
+.chart-section {
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.chart-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.chart-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .chart-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+[data-theme="dark"] .chart-title {
+  color: #f9fafb;
+}
+
+[data-theme="dark"] .chart-subtitle {
+  color: #9ca3af;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  height: 220px;
+  padding-top: 10px;
+}
+
+.bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.bar-label {
+  margin-top: 8px;
+  font-size: 11px;
+  text-align: center;
+  max-width: 70px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-track {
+  width: 100%;
+  height: 180px;
+  border-radius: 10px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar-target {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.bar-fill {
+  width: 100%;
+  background: var(--badge-success-text);
+  border-radius: 10px 10px 0 0;
+  position: relative;
+  z-index: 2;
+}
+
+.bar-value {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: #6b7280;
+  z-index: 5;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* =========================
+   TOP PROGRESS PPL & DESA
+========================= */
+
 .monitor-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -973,9 +1113,23 @@ body {
 .top-item {
   display: flex;
   justify-content: space-between;
+  gap: 10px;
   align-items: center;
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
+}
+
+.top-item div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rank-number {
+  width: 18px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-muted);
 }
 
 .top-rank {
@@ -1752,6 +1906,46 @@ tbody tr:hover {
   }
 }
 
+@media (max-width: 768px) {
+  .chart-wrapper {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .chart-card{
+    padding:10px;
+  }
+
+  .bar-chart {
+    height: 170px;
+    gap: 6px;
+  }
+
+  .bar-track {
+    height: 140px;
+  }
+
+  .bar-label{
+    max-width:70px;
+    white-space:nowrap;
+  }
+
+  .bar-value{
+    font-size:9px;
+  }
+
+  #desaTableSection th:nth-child(8),
+  #desaTableSection td:nth-child(8),
+  #desaTableSection th:nth-child(9),
+  #desaTableSection td:nth-child(9) {
+    display: none;
+  }
+  
+  .panel-title, .section-title {
+    font-size: 14px;
+  }
+}
+
 @media(max-width:600px) {
   .header {
     align-items: flex-start;
@@ -1784,22 +1978,22 @@ tbody tr:hover {
   }
 
   .theme-switch {
-    width: 44px;
-    height: 24px;
+    width: 38px;
+    height: 22px;
   }
 
   .theme-slider::before {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     font-size: 10px;
   }
 
   .theme-switch input:checked+.theme-slider::before {
-    transform: translateX(20px);
+    transform: translateX(16px);
   }
 
   .region-badge {
-    height: 24px;
+    height: 26px;
     padding: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -1807,7 +2001,7 @@ tbody tr:hover {
   }
 
   .region-badge .user-profile {
-    font-size: 25px;
+    font-size: 26px;
   }
 
   #regionText, .chevron-icon {
@@ -1854,6 +2048,10 @@ tbody tr:hover {
 
   .toolbar {
     flex-direction: column;
+  }
+
+  table {
+    font-size: 12px;
   }
 
   .edit-modal {
