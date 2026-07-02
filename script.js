@@ -1,6 +1,7 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzTmNDECChiCRRPtotPq0JHu0IbEVb1qBrK6mZgbNftBSXez2r1IeMeWu2KGRJVV4MiEg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzecvvakjq2zDjbzJuySTZhcJQ2IuPN0aPOj1NqIR5H1ZiKipvmrq0-mlrZsBQ29U84eQ/exec";
 
 let allData = [];
+let currentEditRow = null;
 
 let currentPage = 1;
 const rowsPerPage = 10;
@@ -837,7 +838,7 @@ function renderPplSummary() {
   }
 
   tbody.innerHTML += `
-    <tr style="font-weight:bold; background:#f2f2f2;">
+    <tr class="summary-total-row">
       <td>JUMLAH TOTAL</td>
       <td align="center">${formatNumber(total.muatan)}</td>
       <td align="center">${formatNumber(total.open)}</td>
@@ -974,7 +975,7 @@ function renderDesaSummary() {
   }
 
   tbody.innerHTML += `
-    <tr style="font-weight:bold; background:#f2f2f2;">
+    <tr class="summary-total-row">
       <td>JUMLAH TOTAL</td>
       <td align="center">${formatNumber(total.muatan)}</td>
       <td align="center">${formatNumber(total.open)}</td>
@@ -1029,7 +1030,7 @@ function renderTable(data) {
 
   emptyState.classList.add("hide");
 
-  pageData.forEach(item => {
+  pageData.forEach((item, index) => {
 
     const total =
       getMuatan(item);
@@ -1080,6 +1081,11 @@ function renderTable(data) {
         <td align="center">${formatNumber(approve)}</td>
         <td align="center">${formatPercent(progress)}</td>
         <td><span class="status ${statusClass}">${status}</span></td>
+        <td class="action-cell">
+          <button class="edit-btn" data-row="${item._row}" data-index="${index}" title="Edit">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+        </td>
       </tr>
     `;
   });
@@ -1184,6 +1190,42 @@ function changePage(page) {
     );
 
   renderDashboard();
+}
+
+function openEditModal(data) {
+  currentEditRow = data;
+
+  document.getElementById("editDesa").value = data.NAMA_DESA;
+  document.getElementById("editSls").value = data.NAMA_SLS;
+
+  // Open dihitung sama seperti di tabel
+  const total = getMuatan(data);
+  const submit = angka(data.SUBMIT);
+  const reject = angka(data.REJECT);
+  const approve = angka(data.APPROVED);
+
+  const open = Math.max(
+    total - submit - reject - approve,
+    0
+  );
+
+  document.getElementById("editOpen").value = open;
+
+  document.getElementById("editAssignment").value = data.PRELIST;
+  document.getElementById("editSubmit").value = data.SUBMIT;
+  document.getElementById("editReject").value = data.REJECT;
+  document.getElementById("editApproved").value = data.APPROVED;
+
+  document
+    .getElementById("editModal")
+    .classList.remove("hide");
+}
+
+function closeEditModal() {
+  document
+    .getElementById("editModal")
+    .classList.add("hide");
+
 }
 
 /* =========================
@@ -1378,6 +1420,107 @@ document.addEventListener("click", (e) => {
   }
 });
 
+document.addEventListener("click", (e) => {
+
+  const btn = e.target.closest(".edit-btn");
+  if (!btn) return;
+
+  const row = Number(btn.dataset.row);
+
+  const data = allData.find(item => item._row === row);
+
+  console.log(data);
+
+  if (data) {
+    openEditModal(data);
+  }
+
+});
+
+document
+  .getElementById("cancelEditBtn")
+  .addEventListener("click", closeEditModal);
+
+document
+  .getElementById("closeEditModal")
+  .addEventListener("click", closeEditModal);
+
+document
+  .getElementById("editModal")
+  .addEventListener("click", (e) => {
+
+    if (e.target.id === "editModal") {
+
+      closeEditModal();
+
+    }
+
+  });
+
+document.getElementById("saveEditBtn").addEventListener("click", saveEditData);
+
+async function saveEditData() {
+
+  if (!currentEditRow) return;
+
+  const btn = document.getElementById("saveEditBtn");
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+
+  const payload = {
+    action: "update",
+    row: currentEditRow._row,
+
+    PRELIST: Number(document.getElementById("editAssignment").value) || 0,
+    SUBMIT: Number(document.getElementById("editSubmit").value) || 0,
+    REJECT: Number(document.getElementById("editReject").value) || 0,
+    APPROVED: Number(document.getElementById("editApproved").value) || 0
+  };
+
+  try {
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "Gagal menyimpan");
+    }
+
+    // Update data lokal
+    currentEditRow.PRELIST = payload.PRELIST;
+    currentEditRow.SUBMIT = payload.SUBMIT;
+    currentEditRow.REJECT = payload.REJECT;
+    currentEditRow.APPROVED = payload.APPROVED;
+
+    closeEditModal();
+
+    renderDashboard();
+
+    updateSyncStatus("Perubahan berhasil disimpan");
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert("Gagal menyimpan data.");
+
+  } finally {
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan';
+
+  }
+
+}
+
 /* =========================
    INIT
 ========================= */
@@ -1401,13 +1544,3 @@ if (refreshBtn) {
     }
   });
 }
-
-document.addEventListener("input", (e) => {
-  if (!e.target.classList.contains("cell-input")) return;
-
-  const row = e.target.dataset.row;
-  const field = e.target.dataset.field;
-  const value = e.target.value;
-
-  updateCell(row, field, value);
-});
