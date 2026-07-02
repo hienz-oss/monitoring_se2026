@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzecvvakjq2zDjbzJuySTZhcJQ2IuPN0aPOj1NqIR5H1ZiKipvmrq0-mlrZsBQ29U84eQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxipSJGTE-dcgWR5WthFEn2NFQzO4d8bTUOqvMQ7YZif0K70moqjoa5C8DFt9aqo_Axdw/exec";
 
 let allData = [];
 let currentEditRow = null;
