@@ -1,2070 +1,1760 @@
-:root {
-  --body-font: Arimo, sans-serif;
-  --bg: #eef2f7;
-  --surface: #ffffff;
-  --text: #1f2937;
-  --text-muted: #6b7280;
-  --border: #d5d7db;
-  --header-bg: rgba(255, 255, 255, .80);
-  --table-header: #e9a227;
-  --table-header-border: #f59e0b;
-  --shadow: 0 2px 5px rgba(0, 0, 0, .35);
+const API_URL = "https://script.google.com/macros/s/AKfycbxipSJGTE-dcgWR5WthFEn2NFQzO4d8bTUOqvMQ7YZif0K70moqjoa5C8DFt9aqo_Axdw/exec";
 
-  --region-bg: #fffbeb;
-  --region-border: #f59e0b;
-  --region-text: #b45309;
+let allData = [];
+let currentEditRow = null;
 
-  --sync-bg: #fffbeb;
-  --sync-border: #fde68a;
-  --sync-text: #b45309;
+let pplSummaryData = {};
+let desaSummaryData = {};
 
-  --title-border: #cfcfcf;
+let currentPage = 1;
+const rowsPerPage = 10;
 
-  --badge-bg: #f3f4f6;
-  --badge-border: #d1d5db;
-  --badge-text: #374151;
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast");
 
-  --badge-success-bg: #ecfdf5;
-  --badge-success-border: #bbf7d0;
-  --badge-success-text: #15803d;
+  toast.textContent = message;
 
-  --badge-warning-bg: #fffbeb;
-  --badge-warning-border: #fde68a;
-  --badge-warning-text: #b45309;
+  toast.className = `toast ${type} show`;
 
-  --badge-danger-bg: #fef2f2;
-  --badge-danger-border: #fecaca;
-  --badge-danger-text: #dc2626;
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
 
-  --row-hover: #edf4ff;
-  --summary-row-bg: #efefef;
 }
 
-[data-theme="dark"] {
-  --bg: #020617;
-  --surface: #1e293b;
-  --text: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: #334155;
-  --header-bg: rgba(30, 41, 59, .80);
-  --table-header: #c57f00;
-  --table-header-border: #8a5a00;
-  --shadow: 0 2px 5px rgba(0, 0, 0, .35);
+async function loadData() {
+  const loader =
+    document.getElementById("tableLoader");
 
-  --region-bg: #2d2414;
-  --region-border: #8a5a00;
-  --region-text: #fbbf24;
+  updateSyncStatus("Memeriksa data, mohon tunggu ...");
+  renderTopPplSkeleton();
+  renderTopDesaSkeleton();
 
-  --sync-bg: #2d2414;
-  --sync-border: #8a5a00;
-  --sync-text: #fbbf24;
+  if (loader) {
+    loader.classList.remove("hide");
+  }
 
-  --title-border: rgba(96, 165, 250, .45);
+  try {
+    const response =
+      await fetch(API_URL);
 
-  --badge-bg: rgba(148, 163, 184, .12);
-  --badge-border: rgba(148, 163, 184, .3);
-  --badge-text: #cbd5e1;
+    const newData =
+      await response.json();
 
-  --badge-success-bg: rgba(34, 197, 94, .12);
-  --badge-success-border: rgba(34, 197, 94, .35);
-  --badge-success-text: #4ade80;
+    const newSignature =
+      createDataSignature(newData);
 
-  --badge-warning-bg: rgba(245, 158, 11, .12);
-  --badge-warning-border: rgba(245, 158, 11, .35);
-  --badge-warning-text: #fbbf24;
+    const oldSignature =
+      localStorage.getItem("lastDataSignature");
 
-  --badge-danger-bg: rgba(239, 68, 68, .12);
-  --badge-danger-border: rgba(239, 68, 68, .35);
-  --badge-danger-text: #f87171;
+    const lastUpdateTime =
+      localStorage.getItem("lastDataUpdateTime");
 
-  --row-hover: #24324c;
-  --summary-row-bg: #2b3445;
-}
+    const isFirstLoad =
+      !oldSignature;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+    const isDataChanged =
+      newSignature !== oldSignature;
 
-body {
-  font-family: var(--body-font);
-  font-size: 13px;
-  background: var(--bg);
-  color: var(--text);
-}
+    allData = newData.filter(item =>
+      String(item.NAMA_PML || "")
+        .trim()
+        .toLowerCase() ===
+      "uhin awaludin"
+    );
 
-.app {
-  max-width: 1400px;
-  margin: auto;
-  padding: 0;
-}
+    if (
+      document.getElementById("pplFilter").options.length === 1
+    ) {
+      renderFilter();
+    }
 
-.header {
-  background: var(--header-bg);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  padding: 10px 25px;
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
+    shownWarnings = new Set();
+    renderDashboard();
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+    if (isFirstLoad || isDataChanged) {
+      const now =
+        new Date();
 
-.header-logo {
-  width: 40px;
-  height: auto;
-  flex-shrink: 0;
-}
+      const updateTime =
+        now.toLocaleTimeString("en-GB");
 
-.header h1 {
-  font-size: 18px;
-  margin: 0;
-}
+      localStorage.setItem(
+        "lastDataSignature",
+        newSignature
+      );
 
-.header p {
-  color: var(--text-muted);
-  line-height: 1rem;
-  margin: 0;
-}
+      localStorage.setItem(
+        "lastDataUpdateTime",
+        updateTime
+      );
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+      updateSyncStatus(
+        "Update : " + updateTime
+      );
+    } else {
+      updateSyncStatus(
+        lastUpdateTime
+          ? "Update : " + lastUpdateTime
+          : "Data belum berubah"
+      );
+    }
 
-.theme-switch {
-  position: relative;
-  width: 38px;
-  height: 22px;
-}
-
-.theme-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.theme-slider {
-  position: absolute;
-  inset: 0;
-  background: #fde68a;
-  border: 1px solid #f59e0b;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: .25s;
-  box-shadow:
-      inset 0 1px 3px rgba(146, 64, 14, .28),
-      /* shadow atas */
-      inset 0 -1px 1px rgba(255, 255, 255, .65);
-    /* highlight bawah */
-}
-
-.theme-slider::before {
-  content: "\f185";
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  left: 2px;
-  top: 2px;
-  background: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  color: #f59e0b;
-  transition: .25s;
-}
-
-.theme-switch input:checked+.theme-slider {
-  background: #334155;
-  border-color: #475569;
-}
-
-.theme-switch input:checked+.theme-slider::before {
-  transform: translateX(16px);
-  content: "\f186";
-  color: #334155;
-}
-
-.region-wrap {
-  position: relative;
-}
-
-.region-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 28px;
-  border: 1px solid var(--region-border);
-  background: var(--region-bg);
-  color: var(--region-text);
-  border-radius: 999px;
-  padding: 8px 14px 8px 4px;
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background .2s ease,
-    border-color .2s ease,
-    color .2s ease,
-    box-shadow .2s ease,
-    transform .15s ease;
-}
-
-.region-badge .user-profile {
-  font-size: 20px;
-}
-
-.region-badge:hover {
-  background:
-    color-mix(in srgb,
-      var(--region-bg) 85%,
-      #f59e0b);
-  border-color: #f59e0b;
-  transform: translateY(-1px);
-  box-shadow:
-    0 4px 12px rgba(245, 158, 11, .15);
-}
-
-.region-badge.active {
-  border-color: #f59e0b;
-  box-shadow:
-    0 0 0 3px rgba(245, 158, 11, .12);
-}
-
-.chevron-icon {
-  font-size: 11px;
-  transition: transform .25s ease;
-}
-
-.region-badge.active .chevron-icon {
-  transform: rotate(180deg);
-}
-
-.user-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.region-panel {
-  position: absolute;
-  top: 42px;
-  right: 0;
-  z-index: 300;
-  min-width: 270px;
-  padding: 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
-}
-
-.region-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-}
-
-.region-user-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.region-user-content i {
-  color: var(--text-muted);
-  font-size: 30px;
-}
-
-.region-user-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-  align-items: flex-start;
-}
-
-.verified-text {
-  display: flex;
-  gap: 15px;
-  margin-top: 5px;
-  color: var(--badge-success-text);
-  font-weight: 600;
-  font-size: 11px !important;
-}
-
-.verified-text i {
-  color: var(--badge-success-text);
-  font-size: 12px;
-  margin-left: 5px;
-}
-
-#regionTitle {
-  font-weight: 700;
-  font-size: 14px;
-}
-
-#regionUserId {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.region-meta {
-  display: grid;
-  gap: 8px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px;
-  background: var(--bg);
-}
-
-.region-meta-title {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 5px;
-}
-
-.region-meta div {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.region-meta span,
-.region-stats span {
-  color: var(--text-muted);
-}
-
-.region-panel hr {
-  margin: 12px 0;
-  border: none;
-  border-top: 1px solid var(--border);
-}
-
-.region-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.region-stats div {
-  padding: 8px;
-  text-align: center;
-  border-radius: 10px;
-  background: var(--bg);
-}
-
-.region-stats span {
-  display: block;
-  font-size: 11px;
-  margin-bottom: 4px;
-}
-
-.region-stats strong {
-  font-size: 16px;
-}
-
-.main {
-  padding: 0 25px;
-  margin-bottom: 20px;
-  position: relative;
-}
-
-.sync-row {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin: 10px 0;
-}
-
-.sync-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.sync-status {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 10px;
-  height: 30px;
-  background: var(--sync-bg);
-  border-left: 4px solid var(--sync-border);
-  color: var(--sync-text);
-  border-radius: 8px;
-  font-size: 13px;
-}
-
-.sync-status i {
-  margin-right: 10px;
-}
-
-.refresh-btn {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: 10px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition:
-    color .2s ease,
-    border-color .2s ease,
-    background .2s ease,
-    transform .15s ease;
-}
-
-.refresh-btn:hover {
-  color: #f59e0b;
-  border-color: #f59e0b;
-  background: var(--badge-bg);
-}
-
-.refresh-btn:active {
-  transform: scale(.96);
-}
-
-.refresh-btn.loading i {
-  animation: refreshSpin .8s linear infinite;
-}
-
-@keyframes refreshSpin {
-  to {
-    transform: rotate(360deg);
+  } catch (error) {
+    console.error("Gagal mengambil data:", error);
+    updateSyncStatus("Gagal sinkronisasi data");
+  } finally {
+    if (loader) {
+      loader.classList.add("hide");
+    }
   }
 }
 
-.setting-wrap {
-  position: relative;
+async function saveEditData() {
+  if (!currentEditRow) return;
+
+  const btn = document.getElementById("saveEditBtn");
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+
+  const getValue = id => {
+    const value = document.getElementById(id).value.trim();
+    return value === "" ? "" : Number(value);
+  };
+
+  const payload = {
+    action: "updateAll",
+    row: currentEditRow._row,
+    PRELIST: getValue("editAssignment"),
+    SUBMIT: getValue("editSubmit"),
+    REJECT: getValue("editReject"),
+    APPROVED: getValue("editApproved")
+  };
+
+  try {
+
+    const params = new URLSearchParams(payload);
+
+    const response = await fetch(`${API_URL}?${params.toString()}`);
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "Gagal menyimpan");
+    }
+
+    // Update data lokal
+    currentEditRow.PRELIST = payload.PRELIST;
+    currentEditRow.SUBMIT = payload.SUBMIT;
+    currentEditRow.REJECT = payload.REJECT;
+    currentEditRow.APPROVED = payload.APPROVED;
+
+    closeEditModal();
+
+    renderDashboard();
+
+    updateSyncStatus("Perubahan berhasil disimpan");
+
+    showToast("Data berhasil disimpan");
+
+  } catch (err) {
+
+    console.error(err);
+
+    showToast(err.message, "error");
+
+  } finally {
+
+    btn.disabled = false;
+    btn.innerHTML =
+      '<i class="fa-solid fa-floppy-disk"></i> Simpan';
+
+  }
+
 }
 
-.setting-btn {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: 10px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition:
-    color .2s ease,
-    border-color .2s ease,
-    background .2s ease,
-    transform .15s ease;
+function updateLocalData(row, field, value) {
+  const item = allData.find(x => x._row == row);
+  if (!item) return;
+
+  item[field] = isNaN(value) ? value : Number(value);
 }
 
-.setting-btn:hover {
-  color: #f59e0b;
-  border-color: #f59e0b;
-  background: var(--badge-bg);
+function createDataSignature(data) {
+  return JSON.stringify(
+    data
+      .map(item => ({
+        desa: item.NAMA_DESA || "",
+        sls: item.NAMA_SLS || "",
+        ppl: item.NAMA_PPL || "",
+        pml: item.NAMA_PML || "",
+        muatan: getMuatan(item),
+        submit: angka(item.SUBMIT),
+        reject: angka(item.REJECT),
+        approved: angka(item.APPROVED)
+      }))
+      .sort((a, b) =>
+        `${a.desa}-${a.sls}-${a.ppl}`.localeCompare(
+          `${b.desa}-${b.sls}-${b.ppl}`,
+          "id"
+        )
+      )
+  );
 }
 
-.setting-btn:active {
-  transform: scale(.96);
+function getMuatan(item) {
+  const prelist =
+    angka(item.PRELIST);
+
+  const totalMuatan =
+    angka(item.TOTAL_MUATAN);
+
+  return prelist > 0
+    ? prelist
+    : totalMuatan;
 }
 
-.setting-panel {
-  position: absolute;
-  top: 38px;
-  right: 0;
-  z-index: 300;
-  min-width: 260px;
-  padding: 12px;
-  line-height: 1em;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .16);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+function angka(value) {
+  return Number(value) || 0;
 }
 
-.setting-panel h3 {
-  margin: 0;
-  padding: 4px 0 8px 0;
-  font-size: 13px;
-  border-bottom: 1px solid var(--border);
+function formatNumber(value) {
+  return new Intl.NumberFormat("id-ID").format(value);
 }
 
-.setting-panel i {
-  margin-right: 5px;
+function formatPercent(value) {
+  return new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value) + "%";
 }
 
-.setting-panel.hide {
-  display: none;
+function formatDelta(progress) {
+  const target = getTargetHariIni();
+  const delta = progress - target;
+
+  if (Math.abs(delta) < 0.005) {
+    return "±0,00%";
+  }
+
+  const sign = delta > 0 ? "+" : "-";
+
+  return sign + formatPercent(Math.abs(delta));
+
 }
 
-.setting-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px;
-  color: var(--text);
+function getDeltaProgress(progress) {
+  const target = getTargetHariIni();
+  const delta = progress - target;
+
+  const sign = delta > 0 ? "+" : delta < 0 ? "-" : "±";
+
+  return sign + formatPercent(Math.abs(delta));
 }
 
-.setting-item span i {
-  font-size: 8px !important;
-  margin-right: 5px;
+function updateSyncStatus(text) {
+  document.getElementById("syncStatusText").textContent = text;
 }
 
-.setting-panel label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 0;
-  margin: 0;
-  color: var(--text);
-  cursor: pointer;
+function getTargetHariIni() {
+
+  const baseline =
+    new Date("2026-06-17T12:00:00");
+
+  const today =
+    new Date();
+
+  const msPerHour =
+    1000 * 60 * 60;
+
+  const diffHours =
+    (today - baseline) / msPerHour;
+
+  const cycles =
+    Math.floor(diffHours / 24);
+
+  let targetHariIni =
+    5.1 + (cycles * 1.7);
+
+  return Math.max(
+    3.4,
+    Math.min(targetHariIni, 100)
+  );
+
 }
 
-.setting-panel input {
-  accent-color: #f59e0b;
-  margin: 0;
+function getProgressClass(progress) {
+
+  const targetHariIni =
+    getTargetHariIni();
+
+  const targetPercent =
+    targetHariIni > 0
+      ? (progress / targetHariIni) * 100
+      : 0;
+
+  if (targetPercent >= 100) {
+    return "success";
+  }
+
+  if (targetPercent >= 80) {
+    return "warning";
+  }
+
+  return "danger";
+
 }
 
-.mini-switch {
-  position: relative;
-  width: 32px;
-  height: 18px;
-  flex-shrink: 0;
+function renderTargetHariIni() {
+  const baseline =
+    new Date("2026-06-17T12:00:00");
+
+  const today = new Date();
+
+  const msPerHour =
+    1000 * 60 * 60;
+
+  const diffHours =
+    (today - baseline) / msPerHour;
+
+  const cycles =
+    Math.floor(diffHours / 24);
+
+  // Target awal 5,1%
+  let targetHariIni =
+    5.1 + (cycles * 1.7);
+
+  // Batas bawah dan atas
+  targetHariIni = Math.max(
+    3.4,
+    Math.min(targetHariIni, 100)
+  );
+
+  document.getElementById("targetBadge").innerHTML = `
+    <i class="fa-solid fa-bullseye"></i>
+    Target Hari Ini: ${formatPercent(targetHariIni)}
+  `;
 }
 
-.mini-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+function renderFilter() {
+  const desaFilter = document.getElementById("desaFilter");
+  const pplFilter = document.getElementById("pplFilter");
+
+  const desaList = [...new Set(
+    allData.map(item => item.NAMA_DESA).filter(Boolean)
+  )].sort();
+
+  const pplList = [...new Set(
+    allData.map(item => item.NAMA_PPL).filter(Boolean)
+  )].sort();
+
+  desaList.forEach(desa => {
+    const option = document.createElement("option");
+    option.value = desa;
+    option.textContent = desa
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+
+    desaFilter.appendChild(option);
+  });
+
+  pplList.forEach(ppl => {
+    const option = document.createElement("option");
+    option.value = ppl;
+    option.textContent = ppl;
+    pplFilter.appendChild(option);
+  });
 }
 
-.mini-slider {
-  position: absolute;
-  inset: 0;
-  background: #d1d5db;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: .2s;
+function getFilteredData() {
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const desa = document.getElementById("desaFilter").value;
+  const ppl = document.getElementById("pplFilter").value;
+  const statusValue = document.getElementById("statusFilter").value;
+
+  return allData.filter(item => {
+    const matchSearch =
+      String(item.NAMA_DESA || "").toLowerCase().includes(search) ||
+      String(item.NAMA_SLS || "").toLowerCase().includes(search) ||
+      String(item.NAMA_PPL || "").toLowerCase().includes(search);
+
+    const matchDesa =
+      !desa || item.NAMA_DESA === desa;
+
+    const matchPpl =
+      !ppl || item.NAMA_PPL === ppl;
+
+    const status =
+      getStatus(item).text;
+
+    const matchStatus =
+      !statusValue || status === statusValue;
+
+    return (
+      matchSearch &&
+      matchDesa &&
+      matchPpl &&
+      matchStatus
+    );
+  });
 }
 
-.mini-slider::before {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  left: 2px;
-  top: 2px;
-  background: #fff;
-  border-radius: 50%;
-  transition: .2s;
+function getStatus(item) {
+  const total = getMuatan(item);
+  const submit = angka(item.SUBMIT);
+  const approve = angka(item.APPROVED);
+
+  const progress =
+    total > 0
+      ? ((submit + approve) / total) * 100
+      : 0;
+
+  if (progress >= 100) {
+    return {
+      text: "Selesai",
+      className: "done"
+    };
+  }
+
+  if (progress > 0) {
+    return {
+      text: "Belum Selesai",
+      className: "pending"
+    };
+  }
+
+  return {
+    text: "Belum Mulai",
+    className: "empty"
+  };
 }
 
-.mini-switch input:checked+.mini-slider {
-  background: #22c55e;
+function renderRegionInfo() {
+  if (!allData.length) return;
+
+  const first = allData[0];
+
+  const titleCase = text =>
+    String(text || "")
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+
+  const kecamatan =
+    titleCase(first.NAMA_KEC || "-");
+
+  const kode =
+    first.KODE_KEC || "-";
+
+  const kabupaten =
+    titleCase(first.NAMA_KAB || "-");
+
+  const provinsi =
+    titleCase(first.NAMA_PROV || "-");
+
+  const totalDesa =
+    new Set(
+      allData
+        .map(item => item.NAMA_DESA)
+        .filter(Boolean)
+    ).size;
+
+  const totalSls =
+    allData.length;
+
+  const totalPpl =
+    new Set(
+      allData
+        .map(item => item.NAMA_PPL)
+        .filter(Boolean)
+    ).size;
+
+  const totalMuatan =
+    allData.reduce(
+      (sum, item) =>
+        sum + getMuatan(item),
+      0
+    );
+
+  const totalApprove =
+    allData.reduce(
+      (sum, item) =>
+        sum + angka(item.APPROVED),
+      0
+    );
+
+  const progress =
+    totalMuatan > 0
+      ? (totalApprove / totalMuatan) * 100
+      : 0;
+
+  document.getElementById("regionText").textContent =
+    "Uhin Awaludin";
+
+  document.getElementById("regionTitle").textContent =
+    "Uhin Awaludin";
+
+  document.getElementById("regionKec").textContent =
+    kecamatan;
+
+  document.getElementById("regionKab").textContent =
+    kabupaten;
+
+  document.getElementById("regionProv").textContent =
+    provinsi;
+
+  document.getElementById("regionDesa").textContent =
+    formatNumber(totalDesa);
+
+  document.getElementById("regionSls").textContent =
+    formatNumber(totalSls);
+
+  document.getElementById("regionPpl").textContent =
+    formatNumber(totalPpl);
 }
 
-.mini-switch input:checked+.mini-slider::before {
-  transform: translateX(14px);
+function renderDashboard() {
+  renderRegionInfo();
+  const data = getFilteredData();
+
+  const totalMuatan = allData.reduce((sum, item) => {
+    return sum + getMuatan(item);
+  }, 0);
+
+  const totalSubmit = allData.reduce((sum, item) => {
+    return sum + angka(item.SUBMIT);
+  }, 0);
+
+  const totalReject = allData.reduce((sum, item) => {
+    return sum + angka(item.REJECT);
+  }, 0);
+
+  const totalApprove = allData.reduce((sum, item) => {
+    return sum + angka(item.APPROVED);
+  }, 0);
+
+  const totalOpen =
+    Math.max(
+      totalMuatan -
+      totalSubmit -
+      totalReject -
+      totalApprove,
+      0
+    );
+
+  const progress =
+    totalMuatan > 0
+      ? ((totalSubmit + totalApprove) / totalMuatan) * 100
+      : 0;
+
+  document.getElementById("totalMuatan").textContent =
+    formatNumber(totalMuatan);
+
+  document.getElementById("totalOpen").textContent =
+    formatNumber(totalOpen);
+
+  document.getElementById("totalApprove").textContent =
+    formatNumber(totalApprove);
+
+  document.getElementById("totalProgress").innerHTML = `
+    ${formatPercent(progress)}
+    <small class="${getProgressClass(progress)}">
+      (${formatDelta(progress)})
+    </small>
+  `;
+
+  renderTargetHariIni();
+  renderTopPpl();
+  renderTopDesa();
+  renderPplCards();
+
+  renderPplSummary();
+  renderChartPpl();
+
+  renderDesaSummary();
+  renderChartDesa();
+
+  renderTable(data);
+  renderPagination(data);
 }
 
-[data-theme="dark"] .mini-slider {
-  background: #475569;
+function renderPplCards() {
+  const container = document.getElementById("pplCards");
+
+  container.innerHTML = "";
+
+  const summary = {};
+
+  allData.forEach(item => {
+    const ppl = item.NAMA_PPL || "-";
+
+    if (!summary[ppl]) {
+      summary[ppl] = {
+        muatan: 0,
+        submit: 0,
+        reject: 0,
+        approve: 0
+      };
+    }
+
+    summary[ppl].muatan += getMuatan(item);
+    summary[ppl].submit += angka(item.SUBMIT);
+    summary[ppl].reject += angka(item.REJECT);
+    summary[ppl].approve += angka(item.APPROVED);
+  });
+
+  Object.entries(summary)
+    .sort((a, b) =>
+      a[0].localeCompare(
+        b[0],
+        "id",
+        { sensitivity: "base" }
+      )
+    )
+    .forEach(([ppl, data]) => {
+
+      // Progress aktual
+      const progress =
+        data.muatan > 0
+          ? ((data.submit + data.approve) / data.muatan) * 100
+          : 0;
+
+      const progressClass =
+        getProgressClass(progress);
+
+      const open = Math.max(
+        angka(data.muatan) -
+        angka(data.submit) -
+        angka(data.reject) -
+        angka(data.approve),
+        0
+      );
+
+      const initials = ppl
+        .trim()
+        .charAt(0)
+        .toUpperCase();
+
+      container.innerHTML += `
+        <div class="ppl-card">
+          <div class="ppl-name">
+            <span class="ppl-avatar">
+              ${initials}
+            </span>
+            <span>${ppl}</span>
+            <span class="badge ${progressClass}">
+              ${formatPercent(progress)}
+            </span>
+          </div>
+
+          <div class="ppl-progress">
+            <div class="ppl-progress-track">
+              <div
+                class="ppl-progress-fill"
+                style="width:${Math.min(progress, 100)}%">
+              </div>
+            </div>
+          </div>
+
+          <div class="ppl-stats">
+            <div class="ppl-stat">
+              <span>Assignment</span>
+              <strong>${formatNumber(data.muatan)}</strong>
+            </div>
+
+            <div class="ppl-stat">
+              <span>Open</span>
+              <strong>${formatNumber(open)}</strong>
+            </div>
+
+            <div class="ppl-stat">
+              <span>Submit</span>
+              <strong>${formatNumber(data.submit)}</strong>
+            </div>
+
+            <div class="ppl-stat">
+              <span>Approved</span>
+              <strong>${formatNumber(data.approve)}</strong>
+            </div>
+          </div>
+        </div>
+      `;
+    });
 }
 
-.cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin: 15px 0;
+function getRankIcon(index) {
+  const medals = ["🥇", "🥈", "🥉"];
+
+  if (index < 3) return medals[index];
+  return index + 1;
 }
 
-.card {
-  position: relative;
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: var(--shadow);
-  transition:
-    transform .2s ease,
-    box-shadow .2s ease,
-    border-color .2s ease;
+function renderTopPpl() {
+  const container = document.getElementById("topPplList");
+
+  const summary = {};
+
+  allData.forEach(item => {
+    const ppl = item.NAMA_PPL || "-";
+
+    if (!summary[ppl]) {
+      summary[ppl] = {
+        muatan: 0,
+        submit: 0,
+        approve: 0
+      };
+    }
+
+    summary[ppl].muatan += getMuatan(item);
+    summary[ppl].submit += angka(item.SUBMIT);
+    summary[ppl].approve += angka(item.APPROVED);
+  });
+
+  const ranking = Object.entries(summary)
+    .map(([ppl, data]) => {
+      const progress =
+        data.muatan > 0
+          ? ((data.submit + data.approve) / data.muatan) * 100
+          : 0;
+
+      return { ppl, progress };
+    })
+    .sort((a, b) => b.progress - a.progress);
+
+  container.innerHTML = "";
+
+  ranking.slice(0, 3).forEach((item, index) => {
+
+    container.innerHTML += `
+      <div class="top-item">
+        <div>
+          ${getRankIcon(index)} ${item.ppl}
+        </div>
+
+        <div class="top-progress">
+          ${formatPercent(item.progress)}
+        </div>
+      </div>
+    `;
+  });
+
+  if (ranking.length > 3) {
+    container.innerHTML += `
+      <div class="more-ppl">
+        + ${ranking.length - 3} PPL lainnya
+      </div>
+    `;
+  }
 }
 
-.card:hover {
-  transform: translateY(-1px);
+function renderTopPplSkeleton() {
+  const container =
+    document.getElementById("topPplList");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  for (let i = 0; i < 4; i++) {
+    container.innerHTML += `
+      <div class="top-skeleton"></div>
+    `;
+  }
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+function renderTopDesa() {
+  const container =
+    document.getElementById("topDesaList");
+
+  if (!container) return;
+
+  const summary = {};
+
+  allData.forEach(item => {
+    const desa = item.NAMA_DESA || "-";
+
+    if (!summary[desa]) {
+      summary[desa] = {
+        muatan: 0,
+        submit: 0,
+        approve: 0
+      };
+    }
+
+    summary[desa].muatan += getMuatan(item);
+    summary[desa].submit += angka(item.SUBMIT);
+    summary[desa].approve += angka(item.APPROVED);
+  });
+
+  const ranking =
+    Object.entries(summary)
+      .map(([desa, data]) => ({
+        desa,
+        progress:
+          data.muatan > 0
+            ? ((data.submit + data.approve) / data.muatan) * 100
+            : 0
+      }))
+      .sort((a, b) => b.progress - a.progress);
+
+  container.innerHTML = "";
+
+  ranking.slice(0, 3).forEach((item, index) => {
+    container.innerHTML += `
+      <div class="top-item">
+        <div>
+          ${getRankIcon(index)} ${item.desa}
+        </div>
+
+        <div class="top-progress">
+          ${formatPercent(item.progress)}
+        </div>
+      </div>
+    `;
+  });
+
+  if (ranking.length > 3) {
+    container.innerHTML += `
+      <div class="more-ppl">
+        + ${ranking.length - 3} desa lainnya
+      </div>
+    `;
+  }
 }
 
-.card-header i {
-  font-size: 28px;
-  color: #f59e0b;
-  opacity: .9;
+function renderTopDesaSkeleton() {
+  const container =
+    document.getElementById("topDesaList");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  for (let i = 0; i < 4; i++) {
+
+    container.innerHTML += `
+      <div class="top-skeleton"></div>
+    `;
+
+  }
+
 }
 
-.card .label {
-  font-size: 13px;
-  color: var(--text-muted);
+function renderPplSummary() {
+  const tbody = document.getElementById("pplBody");
+
+  tbody.innerHTML = "";
+
+  const summary = {};
+  pplSummaryData = summary;
+
+  allData.forEach(item => {
+    const ppl = item.NAMA_PPL || "-";
+
+    if (!summary[ppl]) {
+      summary[ppl] = {
+        muatan: 0,
+        open: 0,
+        submit: 0,
+        reject: 0,
+        approve: 0
+      };
+    }
+
+    summary[ppl].muatan += getMuatan(item);
+    summary[ppl].submit += angka(item.SUBMIT);
+    summary[ppl].reject += angka(item.REJECT);
+    summary[ppl].approve += angka(item.APPROVED);
+  });
+
+  // ====== BARIS PER PPL ======
+  let total = {
+    muatan: 0,
+    open: 0,
+    submit: 0,
+    reject: 0,
+    approve: 0
+  };
+
+  Object.entries(summary)
+    .sort((a, b) =>
+      a[0].localeCompare(b[0], "id", { sensitivity: "base" })
+    )
+    .forEach(([ppl, data]) => {
+
+      data.open = Math.max(
+        data.muatan -
+        data.submit -
+        data.reject -
+        data.approve,
+        0
+      );
+
+      const progress =
+        data.muatan > 0
+          ? ((data.submit + data.approve) / data.muatan) * 100
+          : 0;
+
+      const progressClass = getProgressClass(progress);
+
+      let status = "Belum Mulai";
+      let statusClass = "empty";
+
+      if (progress >= 100) {
+        status = "Selesai";
+        statusClass = "done";
+      } else if (progress > 0) {
+        status = "Belum Selesai";
+        statusClass = "pending";
+      }
+
+      // akumulasi total
+      total.muatan += data.muatan;
+      total.submit += data.submit;
+      total.reject += data.reject;
+      total.approve += data.approve;
+      total.open += data.open;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${ppl}</td>
+          <td align="center">${formatNumber(data.muatan)}</td>
+          <td align="center">${formatNumber(data.open)}</td>
+          <td align="center">${formatNumber(data.submit)}</td>
+          <td align="center">${formatNumber(data.reject)}</td>
+          <td align="center">${formatNumber(data.approve)}</td>
+          <td align="center">
+            <span class="badge ${progressClass}">
+              ${formatPercent(progress)}
+            </span>
+          </td>
+          <td align="center">
+            <span class="delta ${progressClass}">
+              ${getDeltaProgress(progress)}
+            </span>
+          </td>
+          <td>
+            <span class="status ${statusClass}">
+              ${status}
+            </span>
+          </td>
+        </tr>
+      `;
+    });
+
+  // ====== BARIS TOTAL ======
+  const totalProgress =
+    total.muatan > 0
+      ? ((total.submit + total.approve) / total.muatan) * 100
+      : 0;
+
+  const totalProgressClass = getProgressClass(totalProgress);
+
+  let totalStatus = "Belum Mulai";
+  let totalStatusClass = "empty";
+
+  if (totalProgress >= 100) {
+    totalStatus = "Selesai";
+    totalStatusClass = "done";
+  } else if (totalProgress > 0) {
+    totalStatus = "Belum Selesai";
+    totalStatusClass = "pending";
+  }
+
+  tbody.innerHTML += `
+    <tr class="summary-total-row">
+      <td>JUMLAH TOTAL</td>
+      <td align="center">${formatNumber(total.muatan)}</td>
+      <td align="center">${formatNumber(total.open)}</td>
+      <td align="center">${formatNumber(total.submit)}</td>
+      <td align="center">${formatNumber(total.reject)}</td>
+      <td align="center">${formatNumber(total.approve)}</td>
+      <td align="center">
+        <span class="badge ${totalProgressClass}">
+          ${formatPercent(totalProgress)}
+        </span>
+      </td>
+      <td align="center">
+        <span class="delta ${totalProgressClass}">
+          ${getDeltaProgress(totalProgress)}
+        </span>
+      </td>
+      <td>
+        <span class="status ${totalStatusClass}">
+          ${totalStatus}
+        </span>
+      </td>
+    </tr>
+  `;
 }
 
-.card .value {
-  font-size: 24px;
-  font-weight: 700;
-  margin-top: 8px;
+function renderDesaSummary() {
+  const tbody = document.getElementById("desaBody");
+
+  tbody.innerHTML = "";
+
+  const summary = {};
+  desaSummaryData = summary;
+
+  allData.forEach(item => {
+    const desa = item.NAMA_DESA || "-";
+
+    if (!summary[desa]) {
+      summary[desa] = {
+        muatan: 0,
+        open: 0,
+        submit: 0,
+        reject: 0,
+        approve: 0
+      };
+    }
+
+    summary[desa].muatan += getMuatan(item);
+    summary[desa].submit += angka(item.SUBMIT);
+    summary[desa].reject += angka(item.REJECT);
+    summary[desa].approve += angka(item.APPROVED);
+  });
+
+  // ====== BARIS PER PPL ======
+  let total = {
+    muatan: 0,
+    open: 0,
+    submit: 0,
+    reject: 0,
+    approve: 0
+  };
+
+  Object.entries(summary)
+    .sort((a, b) =>
+      a[0].localeCompare(b[0], "id", { sensitivity: "base" })
+    )
+    .forEach(([desa, data]) => {
+
+      data.open = Math.max(
+        data.muatan -
+        data.submit -
+        data.reject -
+        data.approve,
+        0
+      );
+
+      const progress =
+        data.muatan > 0
+          ? ((data.submit + data.approve) / data.muatan) * 100
+          : 0;
+
+      const progressClass = getProgressClass(progress);
+
+      let status = "Belum Mulai";
+      let statusClass = "empty";
+
+      if (progress >= 100) {
+        status = "Selesai";
+        statusClass = "done";
+      } else if (progress > 0) {
+        status = "Belum Selesai";
+        statusClass = "pending";
+      }
+
+      // akumulasi total
+      total.muatan += data.muatan;
+      total.submit += data.submit;
+      total.reject += data.reject;
+      total.approve += data.approve;
+      total.open += data.open;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${desa}</td>
+          <td align="center">${formatNumber(data.muatan)}</td>
+          <td align="center">${formatNumber(data.open)}</td>
+          <td align="center">${formatNumber(data.submit)}</td>
+          <td align="center">${formatNumber(data.reject)}</td>
+          <td align="center">${formatNumber(data.approve)}</td>
+          <td align="center">
+            <span class="badge ${progressClass}">
+              ${formatPercent(progress)}
+            </span>
+          </td>
+          <td align="center">
+            <span class="delta ${progressClass}">
+              ${getDeltaProgress(progress)}
+            </span>
+          </td>
+          <td>
+            <span class="status ${statusClass}">
+              ${status}
+            </span>
+          </td>
+        </tr>
+      `;
+    });
+
+  // ====== BARIS TOTAL ======
+  const totalProgress =
+    total.muatan > 0
+      ? ((total.submit + total.approve) / total.muatan) * 100
+      : 0;
+
+  const totalProgressClass = getProgressClass(totalProgress);
+
+  let totalStatus = "Belum Mulai";
+  let totalStatusClass = "empty";
+
+  if (totalProgress >= 100) {
+    totalStatus = "Selesai";
+    totalStatusClass = "done";
+  } else if (totalProgress > 0) {
+    totalStatus = "Belum Selesai";
+    totalStatusClass = "pending";
+  }
+
+  tbody.innerHTML += `
+    <tr class="summary-total-row">
+      <td>JUMLAH TOTAL</td>
+      <td align="center">${formatNumber(total.muatan)}</td>
+      <td align="center">${formatNumber(total.open)}</td>
+      <td align="center">${formatNumber(total.submit)}</td>
+      <td align="center">${formatNumber(total.reject)}</td>
+      <td align="center">${formatNumber(total.approve)}</td>
+      <td align="center">
+        <span class="badge ${totalProgressClass}">
+          ${formatPercent(totalProgress)}
+        </span>
+      </td>
+      <td align="center">
+        <span class="delta ${totalProgressClass}">
+          ${getDeltaProgress(totalProgress)}
+        </span>
+      </td>
+      <td>
+        <span class="status ${totalStatusClass}">
+          ${totalStatus}
+        </span>
+      </td>
+    </tr>
+  `;
 }
 
-#totalProgress small {
-  margin-top: 4px;
-  font-size: .75rem;
-  font-weight: 400;
+function renderBarChart(containerId, data) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+
+  const maxTarget = Math.max(...data.map(d => d.target));
+
+  data.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "bar-item";
+
+    const track = document.createElement("div");
+    track.className = "bar-track";
+
+    // TARGET (abu)
+    const targetBar = document.createElement("div");
+    targetBar.className = "bar-target";
+    targetBar.style.height = (item.target / maxTarget * 100) + "%";
+
+    // REAL (hijau)
+    const fill = document.createElement("div");
+    fill.className = "bar-fill";
+    fill.style.height = item.progress + "%";
+
+    // VALUE
+    const value = document.createElement("div");
+    value.className = "bar-value";
+    value.textContent = formatPercent(item.progress);
+
+    // Posisi label tepat di atas ujung bar
+    const offset = 6;
+    value.style.bottom = `calc(${Math.min(item.progress, 100)}% + ${offset}px)`;
+
+    // LABEL
+    const label = document.createElement("div");
+    label.className = "bar-label";
+    label.textContent = item.label;
+
+    // Susun elemen
+    track.appendChild(targetBar);
+    track.appendChild(fill);
+    track.appendChild(value);
+
+    row.appendChild(track);
+    row.appendChild(label);
+
+    container.appendChild(row);
+  });
 }
 
-#totalProgress small.success {
-  color: var(--badge-success-text);
+function renderChartPpl() {
+  const data = Object.entries(pplSummaryData)
+    .map(([ppl, d]) => {
+      const progress = d.muatan > 0
+        ? ((d.submit + d.approve) / d.muatan) * 100
+        : 0;
+
+      return {
+        label: ppl,
+        progress,
+        target: 100 // karena target = selesai semua
+      };
+    });
+
+  renderBarChart("chartPpl", data);
 }
 
-#totalProgress small.warning {
-  color: var(--badge-warning-text);
+function renderChartDesa() {
+  const data = Object.entries(desaSummaryData)
+    .map(([desa, d]) => {
+      const progress = d.muatan > 0
+        ? ((d.submit + d.approve) / d.muatan) * 100
+        : 0;
+
+      return {
+        label: desa,
+        progress,
+        target: 100
+      };
+    });
+
+  renderBarChart("chartDesa", data);
 }
 
-#totalProgress small.danger {
-  color: var(--badge-danger-text);
+function renderTable(data) {
+  const start =
+    (currentPage - 1) * rowsPerPage;
+
+  const end =
+    start + rowsPerPage;
+
+  const pageData =
+    data.slice(start, end);
+
+  const tbody =
+    document.getElementById("dataBody");
+
+  const emptyState =
+    document.getElementById("emptyState");
+
+  const table =
+    tbody.closest("table");
+
+  tbody.innerHTML = "";
+
+  if (data.length === 0) {
+
+    table.style.display = "none";
+
+    emptyState.classList.remove("hide");
+
+    return;
+  }
+
+  table.style.display = "";
+
+  emptyState.classList.add("hide");
+
+  pageData.forEach((item, index) => {
+
+    const total =
+      getMuatan(item);
+
+    const submit =
+      angka(item.SUBMIT);
+
+    const reject =
+      angka(item.REJECT);
+
+    const approve =
+      angka(item.APPROVED);
+
+    const open =
+      Math.max(
+        total -
+        submit -
+        reject -
+        approve,
+        0
+      );
+
+    const progress =
+      total > 0
+        ? ((submit + approve) / total) * 100
+        : 0;
+
+    let status = "Belum Mulai";
+    let statusClass = "empty";
+
+    if (progress >= 100) {
+      status = "Selesai";
+      statusClass = "done";
+    } else if (progress > 0) {
+      status = "Belum Selesai";
+      statusClass = "pending";
+    }
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${item.NAMA_DESA || ""}</td>
+        <td>${item.NAMA_SLS || ""}</td>
+        <td>${item.NAMA_PPL || ""}</td>
+        <td align="center">${formatNumber(total)}</td>
+        <td align="center">${formatNumber(open)}</td>
+        <td align="center">${formatNumber(submit)}</td>
+        <td align="center">${formatNumber(reject)}</td>
+        <td align="center">${formatNumber(approve)}</td>
+        <td align="center">${formatPercent(progress)}</td>
+        <td><span class="status ${statusClass}">${status}</span></td>
+        <td class="action-cell">
+          <button class="edit-btn" data-row="${item._row}" data-index="${index}" title="Edit">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  });
 }
 
-.progress-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin: 15px 0;
+function renderPagination(data) {
+  const container =
+    document.getElementById("pagination");
+
+  const totalPages =
+    Math.ceil(data.length / rowsPerPage);
+
+  if (data.length === 0 || totalPages <= 1) {
+    container.innerHTML = "";
+    return;
+  }
+
+  const startRecord =
+    (currentPage - 1) * rowsPerPage + 1;
+
+  const endRecord =
+    Math.min(
+      currentPage * rowsPerPage,
+      data.length
+    );
+
+  const visiblePages = 5;
+
+  let startPage =
+    Math.max(
+      1,
+      currentPage -
+      Math.floor(visiblePages / 2)
+    );
+
+  let endPage =
+    startPage + visiblePages - 1;
+
+  if (endPage > totalPages) {
+    endPage = totalPages;
+
+    startPage =
+      Math.max(
+        1,
+        endPage - visiblePages + 1
+      );
+  }
+
+  let pages = "";
+
+  for (let i = startPage; i <= endPage; i++) {
+    pages += `
+      <button
+        class="page-btn ${i === currentPage ? "active" : ""}"
+        onclick="changePage(${i})">
+        ${i}
+      </button>
+    `;
+  }
+
+  container.innerHTML = `
+    <div class="pagination-info">
+      Menampilkan
+      <strong>${startRecord}</strong>–<strong>${endRecord}</strong>
+      dari
+      <strong>${formatNumber(data.length)}</strong>
+      data
+    </div>
+
+    <div class="pagination-nav">
+      <button
+        class="nav-btn"
+        ${currentPage === 1 ? "disabled" : ""}
+        onclick="changePage(${currentPage - 1})">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      ${pages}
+
+      <button
+        class="nav-btn"
+        ${currentPage === totalPages ? "disabled" : ""}
+        onclick="changePage(${currentPage + 1})">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+  `;
 }
 
-.legend-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  border: 1px solid;
-  font-size: 12px;
-  font-weight: 500;
+function changePage(page) {
+
+  const data =
+    getFilteredData();
+
+  const totalPages =
+    Math.ceil(data.length / rowsPerPage);
+
+  currentPage =
+    Math.max(
+      1,
+      Math.min(page, totalPages)
+    );
+
+  renderDashboard();
 }
 
-.legend-tag.success {
-  background: var(--badge-success-bg);
-  border-color: var(--badge-success-border);
-  color: var(--badge-success-text);
+function openEditModal(data) {
+  currentEditRow = data;
+
+  document.getElementById("editDesa").value = data.NAMA_DESA;
+  document.getElementById("editSls").value = data.NAMA_SLS;
+
+  // Open dihitung sama seperti di tabel
+  const total = getMuatan(data);
+  const submit = angka(data.SUBMIT);
+  const reject = angka(data.REJECT);
+  const approve = angka(data.APPROVED);
+
+  const open = Math.max(
+    total - submit - reject - approve,
+    0
+  );
+
+  document.getElementById("editOpen").value = open;
+
+  document.getElementById("editAssignment").value = data.PRELIST;
+  document.getElementById("editSubmit").value = data.SUBMIT;
+  document.getElementById("editReject").value = data.REJECT;
+  document.getElementById("editApproved").value = data.APPROVED;
+
+  document
+    .getElementById("editModal")
+    .classList.remove("hide");
 }
 
-.legend-tag.warning {
-  background: var(--badge-warning-bg);
-  border-color: var(--badge-warning-border);
-  color: var(--badge-warning-text);
-}
+function closeEditModal() {
+  document
+    .getElementById("editModal")
+    .classList.add("hide");
 
-.legend-tag.danger {
-  background: var(--badge-danger-bg);
-  border-color: var(--badge-danger-border);
-  color: var(--badge-danger-text);
-}
-
-.legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: currentColor;
-  flex-shrink: 0;
-}
-
-.toolbar {
-  display: flex;
-  gap: 12px;
-  margin: 10px 0;
-}
-
-.search-wrap {
-  position: relative;
-  flex: 1;
-}
-
-.search-wrap input {
-  width: 100%;
-  padding-right: 40px;
-}
-
-.clear-search {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  display: none;
-}
-
-.clear-search:hover {
-  color: #f59e0b;
 }
 
 /* =========================
-   CARD PPL
+   THEME
 ========================= */
 
-.ppl-card-section {
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  margin-bottom: 10px;
-  padding: 14px;
-  border-radius: 12px;
+const themeToggle =
+  document.getElementById("themeToggle");
+
+const savedTheme =
+  localStorage.getItem("theme") || "light";
+
+document.documentElement.setAttribute(
+  "data-theme",
+  savedTheme
+);
+
+themeToggle.checked =
+  savedTheme === "dark";
+
+themeToggle.addEventListener("change", () => {
+  const theme =
+    themeToggle.checked
+      ? "dark"
+      : "light";
+
+  document.documentElement.setAttribute(
+    "data-theme",
+    theme
+  );
+
+  localStorage.setItem("theme", theme);
+});
+
+/* =========================
+   FILTER & SEARCH
+========================= */
+
+const searchInput =
+  document.getElementById("searchInput");
+
+const clearSearch =
+  document.getElementById("clearSearch");
+
+function resetPageAndRender() {
+  currentPage = 1;
+  renderDashboard();
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  font-size: 16px;
-  font-weight: 700;
-  border-bottom: 1px solid var(--title-border);
+searchInput.addEventListener("input", () => {
+  clearSearch.style.display =
+    searchInput.value.trim()
+      ? "block"
+      : "none";
+
+  resetPageAndRender();
+});
+
+clearSearch.addEventListener("click", () => {
+  searchInput.value = "";
+  clearSearch.style.display = "none";
+
+  resetPageAndRender();
+
+  searchInput.focus();
+});
+
+document
+  .getElementById("desaFilter")
+  .addEventListener("change", resetPageAndRender);
+
+document
+  .getElementById("pplFilter")
+  .addEventListener("change", resetPageAndRender);
+
+document
+  .getElementById("statusFilter")
+  .addEventListener("change", resetPageAndRender);
+
+/* =========================
+   SETTING PANEL
+========================= */
+
+const settingBtn =
+  document.getElementById("settingBtn");
+
+const settingPanel =
+  document.getElementById("settingPanel");
+
+const toggleGrafikProgress =
+  document.getElementById("toggleGrafikProgress");
+
+const togglePplTable =
+  document.getElementById("togglePplTable");
+
+const toggleDesaTable =
+  document.getElementById("toggleDesaTable");
+
+const toggleDetailTable =
+  document.getElementById("toggleDetailTable");
+
+
+const grafikSection =
+  document.getElementById("grafikSection");
+
+const pplTableSection =
+  document.getElementById("pplTableSection");
+
+const desaTableSection =
+  document.getElementById("desaTableSection");
+
+const detailTableSection =
+  document.getElementById("detailTableSection");
+
+settingBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  settingPanel.classList.toggle("hide");
+});
+
+function applyTableSettings() {
+  const showGrafikProgress =
+    localStorage.getItem("showGrafikProgress") !== "false";
+
+  const showPplTable =
+    localStorage.getItem("showPplTable") !== "false";
+
+  const showDesaTable =
+    localStorage.getItem("showDesaTable") !== "false";
+
+  const showDetailTable =
+    localStorage.getItem("showDetailTable") !== "false";
+
+  toggleGrafikProgress.checked =
+    showGrafikProgress;
+
+  togglePplTable.checked =
+    showPplTable;
+
+  toggleDesaTable.checked =
+    showDesaTable;
+
+  toggleDetailTable.checked =
+    showDetailTable;
+
+  grafikSection.style.display =
+    showGrafikProgress
+      ? "block"
+      : "none";
+
+  pplTableSection.style.display =
+    showPplTable
+      ? "block"
+      : "none";
+
+  desaTableSection.style.display =
+    showDesaTable
+      ? "block"
+      : "none";
+
+  detailTableSection.style.display =
+    showDetailTable
+      ? "block"
+      : "none";
 }
 
-.section-title i {
-  color: #f59e0b;
-}
+toggleGrafikProgress.addEventListener("change", () => {
+  localStorage.setItem(
+    "showGrafikProgress",
+    toggleGrafikProgress.checked
+  );
 
-.ppl-cards {
-  background: var(--surface);
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  padding-bottom: 5px;
-}
+  applyTableSettings();
+});
 
-.ppl-card {
-  position: relative;
-  overflow: hidden;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-}
+togglePplTable.addEventListener("change", () => {
+  localStorage.setItem(
+    "showPplTable",
+    togglePplTable.checked
+  );
 
-.ppl-card:not(.skeleton-card)::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 0;
-  height: 2px;
-  background: #f59e0b;
-  transition: width .3s ease;
-}
+  applyTableSettings();
+});
 
-.ppl-card:not(.skeleton-card):hover::after {
-  width: 100%;
-}
+toggleDesaTable.addEventListener("change", () => {
+  localStorage.setItem(
+    "showDesaTable",
+    toggleDesaTable.checked
+  );
 
-.ppl-card:hover {
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, .12);
-}
+  applyTableSettings();
+});
 
-.ppl-avatar {
-  width: 25px;
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--region-bg);
-  border: 1px solid var(--region-border);
-  color: var(--region-text);
-  font-size: 13px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
+toggleDetailTable.addEventListener("change", () => {
+  localStorage.setItem(
+    "showDetailTable",
+    toggleDetailTable.checked
+  );
 
-.ppl-name {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  applyTableSettings();
+});
 
-.ppl-name .badge {
-  margin-left: auto;
-}
+/* =========================
+   REGION PANEL
+========================= */
 
-.ppl-name strong {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: auto;
-  min-width: 54px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--badge-success-bg);
-  border: 1px solid var(--badge-border);
-  border-color: var(--badge-success-border);
-  color: var(--badge-success-text);
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1;
-}
+const regionBtn =
+  document.getElementById("regionBtn");
 
-.ppl-progress {
-  margin-bottom: 8px;
-}
+const regionPanel =
+  document.getElementById("regionPanel");
 
-.ppl-progress-track {
-  position: relative;
-  width: 100%;
-  height: 5px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
-}
+if (regionBtn && regionPanel) {
+  regionBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
 
-.ppl-progress-track::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #e5e7eb;
-  opacity: .4;
-}
+    regionPanel.classList.toggle("hide");
 
-.ppl-progress-fill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 5px;
-  background: #22c55e;
-  border-radius: 999px;
-  transition: width .4s ease;
-}
-
-[data-theme="dark"] .ppl-progress-track {
-  background: rgba(245, 158, 11, .15);
-}
-
-.ppl-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  text-align: center;
-  margin-bottom: 5px;
-}
-
-.ppl-stat span {
-  display: block;
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 5px;
-}
-
-.ppl-stat strong {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 54px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--badge-bg);
-  border: 1px solid var(--badge-border);
-  color: var(--badge-text);
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.skeleton-card {
-  min-height: 100px;
-  position: relative;
-  overflow: hidden;
-}
-
-.skeleton-card::before {
-  content: "";
-  display: block;
-  width: 50%;
-  height: 14px;
-  border-radius: 8px;
-  background: var(--border);
-  margin-bottom: 10px;
-}
-
-.skeleton-card::after {
-  content: "";
-  display: block;
-  height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(90deg,
-      var(--border),
-      var(--surface),
-      var(--border));
-  background-size: 200% 100%;
-  animation: skeletonMove 1.5s infinite;
-}
-
-@keyframes skeletonMove {
-  from {
-    background-position: 200% 0;
-  }
-
-  to {
-    background-position: -200% 0;
-  }
+    regionBtn.classList.toggle(
+      "active",
+      !regionPanel.classList.contains("hide")
+    );
+  });
 }
 
 /* =========================
-   CHART PPL & DESA
+   GLOBAL CLICK
 ========================= */
 
-.chart-section {
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  margin-top: 20px;
-  padding: 14px;
-  border-radius: 12px;
-}
+document.addEventListener("click", (e) => {
+  if (
+    regionBtn &&
+    regionPanel &&
+    !regionPanel.contains(e.target) &&
+    !regionBtn.contains(e.target)
+  ) {
+    regionPanel.classList.add("hide");
+    regionBtn.classList.remove("active");
+  }
 
-.chart-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
+  if (
+    !settingPanel.contains(e.target) &&
+    !settingBtn.contains(e.target)
+  ) {
+    settingPanel.classList.add("hide");
+  }
+});
 
-.chart-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
+document.addEventListener("click", (e) => {
 
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
+  const btn = e.target.closest(".edit-btn");
+  if (!btn) return;
 
-.chart-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-}
+  const row = Number(btn.dataset.row);
 
-.chart-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-}
+  const data = allData.find(item => item._row === row);
 
-[data-theme="dark"] .chart-card {
-  background: #1f2937;
-  border-color: #374151;
-}
+  console.log(data);
 
-[data-theme="dark"] .chart-title {
-  color: #f9fafb;
-}
+  if (data) {
+    openEditModal(data);
+  }
 
-[data-theme="dark"] .chart-subtitle {
-  color: #9ca3af;
-}
+});
 
-.bar-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 14px;
-  height: 220px;
-  padding-top: 10px;
-}
+document
+  .getElementById("cancelEditBtn")
+  .addEventListener("click", closeEditModal);
 
-.bar-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-}
+document
+  .getElementById("closeEditModal")
+  .addEventListener("click", closeEditModal);
 
-.bar-label {
-  margin-top: 8px;
-  font-size: 11px;
-  text-align: center;
-  max-width: 70px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+document
+  .getElementById("editModal")
+  .addEventListener("click", (e) => {
 
-.bar-track {
-  width: 100%;
-  height: 180px;
-  border-radius: 10px;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-}
+    if (e.target.id === "editModal") {
 
-.bar-target {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-}
+      closeEditModal();
 
-.bar-fill {
-  width: 100%;
-  background: var(--badge-success-text);
-  border-radius: 10px 10px 0 0;
-  position: relative;
-  z-index: 2;
-}
+    }
 
-.bar-value {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  color: #6b7280;
-  z-index: 5;
-  pointer-events: none;
-  white-space: nowrap;
-}
+  });
+
+document.getElementById("saveEditBtn").addEventListener("click", saveEditData);
 
 /* =========================
-   TOP PROGRESS PPL & DESA
+   INIT
 ========================= */
 
-.monitor-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin: 20px 0;
-}
-
-.monitor-panel {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: var(--shadow);
-}
-
-.panel-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  font-size: 16px;
-  font-weight: 700;
-  border-bottom: 1px solid var(--title-border);
-}
-
-.panel-title i {
-  color: #f59e0b;
-}
-
-.top-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.top-item div:first-child {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.rank-number {
-  width: 18px;
-  text-align: center;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.top-rank {
-  color: var(--text-muted);
-  width: 22px;
-}
-
-.top-progress {
-  font-weight: 700;
-}
-
-.trend {
-  font-size: 11px;
-  margin-left: 6px;
-  font-weight: 700;
-}
-
-.trend.up {
-  color: #22c55e;
-}
-
-.trend.down {
-  color: #ef4444;
-}
-
-.trend.stable {
-  color: #6b7280;
-}
-
-.top-skeleton {
-  height: 34px;
-  border-bottom: 1px solid var(--border);
-  position: relative;
-  overflow: hidden;
-}
-
-.top-skeleton::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 9px;
-  width: 55%;
-  height: 12px;
-  border-radius: 999px;
-  background: linear-gradient(90deg,
-      var(--border),
-      var(--surface),
-      var(--border));
-  background-size: 200% 100%;
-  animation: skeletonMove 1.5s infinite;
-}
-
-.top-skeleton::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 9px;
-  width: 58px;
-  height: 12px;
-  border-radius: 999px;
-  background: linear-gradient(90deg,
-      var(--border),
-      var(--surface),
-      var(--border));
-  background-size: 200% 100%;
-  animation: skeletonMove 1.5s infinite;
-}
-
-.status-row {
-  margin-bottom: 14px;
-}
-
-.status-head {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-}
-
-.status-bar {
-  height: 8px;
-  background: var(--border);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.status-fill {
-  height: 100%;
-  border-radius: 999px;
-}
-
-.status-empty {
-  background: #94a3b8;
-}
-
-.status-pending {
-  background: #f59e0b;
-}
-
-.status-done {
-  background: #22c55e;
-}
-
-.badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: .8rem;
-  font-weight: 600;
-}
-
-.badge.success {
-  color: var(--badge-success-text);
-  background: var(--badge-success-bg);
-  border: 1px solid var(--badge-success-border);
-}
-
-.badge.warning {
-  color: var(--badge-warning-text);
-  background: var(--badge-warning-bg);
-  border: 1px solid var(--badge-warning-border);
-}
-
-.badge.danger {
-  color: var(--badge-danger-text);
-  background: var(--badge-danger-bg);
-  border: 1px solid var(--badge-danger-border);
-}
-
-.more-ppl {
-  margin-top: 10px;
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.summary-section {
-  margin: 20px 0;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  padding: 12px;
-  box-shadow: var(--shadow);
-
-}
-
-.toolbar input,
-.toolbar select {
-  background: var(--surface);
-  padding: 8px;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: inherit;
-  transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
-}
-
-.toolbar input {
-  flex: 1;
-}
-
-.toolbar input::placeholder {
-  color: var(--text-muted);
-}
-
-.toolbar input:hover,
-.toolbar select:hover {
-  border-color: #f59e0b;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, .08);
-}
-
-.toolbar input:focus,
-.toolbar select:focus {
-  outline: none;
-  border-color: #f59e0b;
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, .15);
-}
-
-.table-container {
-  position: relative;
-  background: var(--surface);
-  overflow: auto;
-}
-
-.pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.pagination-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pagination-info {
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-.pagination-info strong {
-  color: var(--text);
-}
-
-.pagination span {
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.pagination button {
-  min-width: 36px;
-  padding: 7px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background .2s ease,
-    color .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease,
-    transform .15s ease;
-}
-
-.pagination button:hover:not(:disabled) {
-  border-color: #f59e0b;
-  color: #f59e0b;
-  background: var(--badge-bg);
-  box-shadow: 0 2px 8px rgba(245, 158, 11, .12);
-  transform: translateY(-1px);
-}
-
-.pagination button:disabled {
-  opacity: .45;
-  cursor: not-allowed;
-}
-
-[data-theme="dark"] .pagination button:hover:not(:disabled) {
-  background: rgba(245, 158, 11, .12);
-  color: #fbbf24;
-  border-color: rgba(245, 158, 11, .45);
-}
-
-.page-btn.active {
-  background: #f59e0b;
-  border-color: #f59e0b;
-  color: #fff;
-}
-
-[data-theme="dark"] .page-btn.active {
-  background: #c57f00;
-  border-color: #c57f00;
-  color: #fff;
-}
-
-.table-loader {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border-radius: 14px;
-  z-index: 20;
-  pointer-events: none;
-}
-
-.table-spinner {
-  width: 32px;
-  height: 32px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #f59e0b;
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-}
-
-.hide {
-  display: none;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  background: var(--table-header);
-  border-bottom: 2px solid var(--table-header-border);
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .15);
-  color: #fff;
-  padding: 12px 10px;
-  text-align: center;
-}
-
-td {
-  padding: 4px;
-  border-bottom: 1px solid var(--border);
-}
-
-td:first-child {
-  padding-left: 10px;
-}
-
-tbody tr {
-  transition:
-    background-color .15s ease,
-    transform .15s ease;
-}
-
-tbody tr:hover {
-  background: var(--row-hover);
-}
-
-.status {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 20px;
-}
-
-.action-cell {
-  text-align: center;
-}
-
-.edit-btn {
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  transition: .2s;
-}
-
-.edit-btn:hover {
-  color: #1d4ed8;
-}
-
-.done {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.empty {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.summary-total-row {
-  font-weight: 700;
-  background: var(--summary-row-bg);
-}
-
-.summary-total-row td {
-  border-top: 2px solid var(--border);
-}
-
-.delta {
-  font-size: inherit;
-}
-
-.delta.success {
-  color: var(--badge-success-text);
-}
-
-.delta.warning {
-  color: var(--badge-warning-text);
-}
-
-.delta.danger {
-  color: var(--badge-danger-text);
-}
-
-.empty-state.hide {
-  display: none;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-}
-
-.empty-state i {
-  font-size: 42px;
-  color: var(--text-muted);
-  opacity: .5;
-  margin-bottom: 12px;
-}
-
-.empty-state h4 {
-  margin-bottom: 6px;
-  font-size: 15px;
-}
-
-.empty-state p {
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #fff;
-  background: #333;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: all 0.2s ease;
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.toast-warning {
-  background: #f59e0b;
-}
-
-.toast-error {
-  background: #ef4444;
-}
-
-.toast-success {
-  background: #22c55e;
-}
-
-[data-theme="dark"] .done {
-  background: #14532d;
-  color: #bbf7d0;
-}
-
-[data-theme="dark"] .pending {
-  background: #422006;
-  color: #fde68a;
-}
-
-[data-theme="dark"] .empty {
-  background: #334155;
-  color: #cbd5e1;
-}
-
-/* =========================
-   MAIN FOOTER (APP)
-========================= */
-
-.footer {
-  margin-top: 20px;
-  padding: 14px 25px;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  color: var(--text-muted);
-  font-size: 12px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-/* kiri */
-.footer-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* kanan */
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* link / action kecil */
-.footer a {
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: 0.2s;
-}
-
-.footer a:hover {
-  color: #f59e0b;
-}
-
-/* badge kecil di footer */
-.footer-badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--badge-bg);
-  border: 1px solid var(--badge-border);
-  color: var(--badge-text);
-}
-
-/* status kecil (sync/info) */
-.footer-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* DARK MODE */
-[data-theme="dark"] .footer {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-}
-
-/* =========================
-   EDIT MODAL
-========================= */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, .45);
-  backdrop-filter: blur(2px);
-  z-index: 9999;
-}
-
-.modal-overlay.hide {
-  display: none;
-}
-
-.edit-modal {
-  width: 480px;
-  max-width: 90vw;
-  background: var(--surface);
-  color: var(--text);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-
-/* =========================
-   HEADER
-========================= */
-
-.edit-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.edit-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.modal-close {
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 16px;
-  cursor: pointer;
-  transition: .2s;
-}
-
-.modal-close:hover {
-  background: var(--badge-bg);
-  color: var(--text);
-}
-
-/* =========================
-   BODY
-========================= */
-
-.edit-body {
-  padding: 15px;
-  background: var(--surface);
-}
-
-.form-group {
-  margin-bottom: 14px;
-}
-
-.form-group:last-child {
-  margin-bottom: 0;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
-  color: var(--text);
-}
-
-/* INPUT */
-.form-group input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--text);
-  font-size: 13px;
-  font-family: inherit;
-}
-
-.form-group input::placeholder {
-  color: var(--text-muted);
-}
-
-.form-group input:hover {
-  border-color: #f59e0b;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, .08);
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #f59e0b;
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, .15);
-}
-
-/* Label di kiri (horizontal form) */
-.form-group.horizontal {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.form-group.horizontal label {
-  width: 210px;
-  margin: 0;
-  flex-shrink: 0;
-}
-
-.form-group.horizontal input {
-  flex: 1;
-}
-
-/* readonly */
-.form-group input[readonly] {
-  background: var(--badge-bg);
-  color: var(--text-muted);
-}
-
-/* number align */
-.form-group input[type="number"] {
-  text-align: right;
-}
-
-.form-group input[type="number"]::-webkit-outer-spin-button,
-.form-group input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.form-group input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-/* =========================
-   FOOTER
-========================= */
-
-.edit-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 15px;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.btn-secondary,
-.btn-primary {
-  min-width: 100px;
-  padding: 8px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-family: inherit;
-  cursor: pointer;
-  transition: .2s;
-}
-
-.btn-secondary {
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
-}
-
-.btn-secondary:hover {
-  background: var(--badge-bg);
-}
-
-.btn-primary {
-  border: none;
-  background: #2563eb;
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: #1d4ed8;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media(max-width:1200px) {
-  .ppl-cards {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-
-@media(max-width:1000px) {
-  .cards {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .ppl-cards {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media(max-width:900px) {
-  .ppl-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .monitor-grid {
-    grid-template-columns: 1fr;
-  }
-
-  #regionText, .chevron-icon {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .chart-wrapper {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .chart-card{
-    padding:10px;
-  }
-
-  .bar-chart {
-    height: 170px;
-    gap: 6px;
-  }
-
-  .bar-track {
-    height: 140px;
-  }
-
-  .bar-label{
-    max-width:70px;
-    white-space:nowrap;
-  }
-
-  .bar-value{
-    font-size:9px;
-  }
-
-  #desaTableSection th:nth-child(8),
-  #desaTableSection td:nth-child(8),
-  #desaTableSection th:nth-child(9),
-  #desaTableSection td:nth-child(9) {
-    display: none;
-  }
-  
-  .panel-title, .section-title {
-    font-size: 14px;
-  }
-}
-
-@media(max-width:600px) {
-  .header {
-    align-items: flex-start;
-    gap: 10px;
-    padding: 15px 10px;
-  }
-
-  .header-left {
-    gap: 10px;
-    min-width: 0;
-    flex: 1;
-  }
-
-  .header-logo {
-    width: 34px;
-  }
-
-  .header h1 {
-    font-size: 16px;
-    line-height: 1.1;
-  }
-
-  .header p {
-    display: none;
-  }
-
-  .header-right {
-    gap: 6px;
-    flex-shrink: 0;
-  }
-
-  .theme-switch {
-    width: 38px;
-    height: 22px;
-  }
-
-  .theme-slider::before {
-    width: 16px;
-    height: 16px;
-    font-size: 10px;
-  }
-
-  .theme-switch input:checked+.theme-slider::before {
-    transform: translateX(16px);
-  }
-
-  .region-badge {
-    height: 26px;
-    padding: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .region-badge .user-profile {
-    font-size: 26px;
-  }
-
-  #regionText, .chevron-icon {
-    display: none !important;
-  }
-
-  .region-panel {
-    position: fixed;
-    top: 58px;
-    left: 12px;
-    right: 12px;
-    min-width: auto;
-    width: auto;
-  }
-
-  .main {
-    padding: 0 10px;
-  }
-
-  .card-header i {
-    font-size: 20px;
-  }
-
-  .card .value {
-    font-size: 20px;
-  }
-
-  .cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .ppl-cards {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  .ppl-name {
-    font-size: 14px;
-  }
-
-  .ppl-stats {
-    grid-template-columns: repeat(4, 1fr);
-    row-gap: 10px;
-  }
-
-  .toolbar {
-    flex-direction: column;
-  }
-
-  table {
-    font-size: 12px;
-  }
-
-  .edit-modal {
-    width: calc(100vw - 24px);
-  }
-  
-  .form-group.horizontal {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-  }
-  
-  .form-group.horizontal label {
-    width: auto;
-  }
+applyTableSettings();
+loadData();
+
+const refreshBtn =
+  document.getElementById("refreshBtn");
+
+if (refreshBtn) {
+  refreshBtn.addEventListener("click", async () => {
+    if (refreshBtn.classList.contains("loading")) return;
+
+    refreshBtn.classList.add("loading");
+
+    try {
+      await loadData();
+    } finally {
+      refreshBtn.classList.remove("loading");
+    }
+  });
 }
