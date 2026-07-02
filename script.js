@@ -6,6 +6,19 @@ let currentEditRow = null;
 let currentPage = 1;
 const rowsPerPage = 10;
 
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast");
+
+  toast.textContent = message;
+
+  toast.className = `toast ${type} show`;
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
+
+}
+
 async function loadData() {
   const loader =
     document.getElementById("tableLoader");
@@ -102,13 +115,18 @@ async function saveEditData() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
 
+  const getValue = id => {
+    const value = document.getElementById(id).value.trim();
+    return value === "" ? "" : Number(value);
+  };
+
   const payload = {
     action: "updateAll",
     row: currentEditRow._row,
-    PRELIST: Number(document.getElementById("editAssignment").value) || 0,
-    SUBMIT: Number(document.getElementById("editSubmit").value) || 0,
-    REJECT: Number(document.getElementById("editReject").value) || 0,
-    APPROVED: Number(document.getElementById("editApproved").value) || 0
+    PRELIST: getValue("editAssignment"),
+    SUBMIT: getValue("editSubmit"),
+    REJECT: getValue("editReject"),
+    APPROVED: getValue("editApproved")
   };
 
   try {
@@ -135,11 +153,13 @@ async function saveEditData() {
 
     updateSyncStatus("Perubahan berhasil disimpan");
 
+    showToast("Data berhasil disimpan");
+
   } catch (err) {
 
     console.error(err);
 
-    alert(err.message);
+    showToast(err.message, "error");
 
   } finally {
 
