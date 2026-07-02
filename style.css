@@ -1448,6 +1448,75 @@ tbody tr:hover {
 }
 
 /* =========================
+   MAIN FOOTER (APP)
+========================= */
+
+.footer {
+  margin-top: 20px;
+  padding: 14px 25px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+/* kiri */
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* kanan */
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* link / action kecil */
+.footer a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.footer a:hover {
+  color: #f59e0b;
+}
+
+/* badge kecil di footer */
+.footer-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
+  color: var(--badge-text);
+}
+
+/* status kecil (sync/info) */
+.footer-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* DARK MODE */
+[data-theme="dark"] .footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+/* =========================
    EDIT MODAL
 ========================= */
 
