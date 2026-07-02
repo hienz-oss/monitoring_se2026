@@ -1136,87 +1136,128 @@ function renderDesaSummary() {
   `;
 }
 
-function renderBarChart(containerId, data) {
+function getChartTheme() {
+  const css = getComputedStyle(document.documentElement);
+
+  return {
+    font: css.getPropertyValue("--body-font").trim(),
+    text: css.getPropertyValue("--text").trim(),
+    muted: css.getPropertyValue("--text-muted").trim(),
+    border: css.getPropertyValue("--border").trim(),
+    theme:
+      document.documentElement.getAttribute("data-theme") === "dark"
+        ? "dark"
+        : "light"
+  };
+
+}
+
+function renderApexChart(containerId, summaryData) {
+  const theme = getChartTheme();
+  const labels = [];
+  const values = [];
+
+  Object.entries(summaryData).forEach(([label, d]) => {
+
+    const progress = d.muatan > 0
+      ? ((d.submit + d.approve) / d.muatan) * 100
+      : 0;
+
+    labels.push(label);
+    values.push(Number(progress.toFixed(2)));
+
+  });
+
   const container = document.getElementById(containerId);
   container.innerHTML = "";
 
-  const maxTarget = Math.max(...data.map(d => d.target));
+  const options = {
 
-  data.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "bar-item";
+  chart: {
+    type: "bar",
+    height: 320,
+    fontFamily: theme.font,
+    foreColor: theme.text,
+    toolbar: {
+      show: false
+    }
+  },
 
-    const track = document.createElement("div");
-    track.className = "bar-track";
+  theme: {
+    mode: theme.theme
+  },
 
-    // TARGET (abu)
-    const targetBar = document.createElement("div");
-    targetBar.className = "bar-target";
-    targetBar.style.height = (item.target / maxTarget * 100) + "%";
+  colors: ["#22c55e"],
 
-    // REAL (hijau)
-    const fill = document.createElement("div");
-    fill.className = "bar-fill";
-    fill.style.height = item.progress + "%";
+  series: [{
+    name: "Progress",
+    data: values
+  }],
 
-    // VALUE
-    const value = document.createElement("div");
-    value.className = "bar-value";
-    value.textContent = formatPercent(item.progress);
+  plotOptions: {
+    bar: {
+      borderRadius: 4,
+      columnWidth: "45%",
+      dataLabels: {
+        position: "top"
+      }
+    }
+  },
 
-    // Posisi label tepat di atas ujung bar
-    const offset = 6;
-    value.style.bottom = `calc(${Math.min(item.progress, 100)}% + ${offset}px)`;
+  xaxis: {
+    categories: labels,
+    labels: {
+      style: {
+        colors: theme.text
+      }
+    }
+  },
 
-    // LABEL
-    const label = document.createElement("div");
-    label.className = "bar-label";
-    label.textContent = item.label;
+  yaxis: {
+    min: 0,
+    max: 100,
+    tickAmount: 5,
+    labels: {
+      style: {
+        colors: theme.text
+      },
+      formatter: value => formatPercent(value)
+    }
+  },
 
-    // Susun elemen
-    track.appendChild(targetBar);
-    track.appendChild(fill);
-    track.appendChild(value);
+  grid: {
+    borderColor: theme.border
+  },
 
-    row.appendChild(track);
-    row.appendChild(label);
+  dataLabels: {
+    enabled: true,
+    formatter: value => formatPercent(value),
+    offsetY: -20,
+    style: {
+      colors: [theme.text],
+      fontSize: "12px",
+      fontWeight: 600
+    }
+  },
 
-    container.appendChild(row);
-  });
+  tooltip: {
+    theme: theme.theme,
+    y: {
+      formatter: value => formatPercent(value)
+    }
+  }
+
+};
+
+  new ApexCharts(container, options).render();
 }
 
 function renderChartPpl() {
-  const data = Object.entries(pplSummaryData)
-    .map(([ppl, d]) => {
-      const progress = d.muatan > 0
-        ? ((d.submit + d.approve) / d.muatan) * 100
-        : 0;
-
-      return {
-        label: ppl,
-        progress,
-        target: 100 // karena target = selesai semua
-      };
-    });
-
-  renderBarChart("chartPpl", data);
+  renderApexChart("chartPpl", pplSummaryData);
 }
 
 function renderChartDesa() {
-  const data = Object.entries(desaSummaryData)
-    .map(([desa, d]) => {
-      const progress = d.muatan > 0
-        ? ((d.submit + d.approve) / d.muatan) * 100
-        : 0;
-
-      return {
-        label: desa,
-        progress,
-        target: 100
-      };
-    });
-
-  renderBarChart("chartDesa", data);
+  renderApexChart("chartDesa", desaSummaryData);
 }
 
 function renderTable(data) {
@@ -1481,6 +1522,9 @@ themeToggle.addEventListener("change", () => {
   );
 
   localStorage.setItem("theme", theme);
+
+  renderChartPpl();
+  renderChartDesa();
 });
 
 /* =========================
@@ -1538,9 +1582,6 @@ const settingBtn =
 const settingPanel =
   document.getElementById("settingPanel");
 
-const toggleGrafikProgress =
-  document.getElementById("toggleGrafikProgress");
-
 const togglePplTable =
   document.getElementById("togglePplTable");
 
@@ -1550,9 +1591,6 @@ const toggleDesaTable =
 const toggleDetailTable =
   document.getElementById("toggleDetailTable");
 
-
-const grafikSection =
-  document.getElementById("grafikSection");
 
 const pplTableSection =
   document.getElementById("pplTableSection");
@@ -1569,9 +1607,6 @@ settingBtn.addEventListener("click", (e) => {
 });
 
 function applyTableSettings() {
-  const showGrafikProgress =
-    localStorage.getItem("showGrafikProgress") !== "false";
-
   const showPplTable =
     localStorage.getItem("showPplTable") !== "false";
 
@@ -1581,9 +1616,6 @@ function applyTableSettings() {
   const showDetailTable =
     localStorage.getItem("showDetailTable") !== "false";
 
-  toggleGrafikProgress.checked =
-    showGrafikProgress;
-
   togglePplTable.checked =
     showPplTable;
 
@@ -1592,11 +1624,6 @@ function applyTableSettings() {
 
   toggleDetailTable.checked =
     showDetailTable;
-
-  grafikSection.style.display =
-    showGrafikProgress
-      ? "block"
-      : "none";
 
   pplTableSection.style.display =
     showPplTable
@@ -1613,15 +1640,6 @@ function applyTableSettings() {
       ? "block"
       : "none";
 }
-
-toggleGrafikProgress.addEventListener("change", () => {
-  localStorage.setItem(
-    "showGrafikProgress",
-    toggleGrafikProgress.checked
-  );
-
-  applyTableSettings();
-});
 
 togglePplTable.addEventListener("change", () => {
   localStorage.setItem(
