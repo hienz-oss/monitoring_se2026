@@ -94,6 +94,63 @@ async function loadData() {
   }
 }
 
+async function saveEditData() {
+  if (!currentEditRow) return;
+
+  const btn = document.getElementById("saveEditBtn");
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+
+  const payload = {
+    action: "updateAll",
+    row: currentEditRow._row,
+    PRELIST: Number(document.getElementById("editAssignment").value) || 0,
+    SUBMIT: Number(document.getElementById("editSubmit").value) || 0,
+    REJECT: Number(document.getElementById("editReject").value) || 0,
+    APPROVED: Number(document.getElementById("editApproved").value) || 0
+  };
+
+  try {
+
+    const params = new URLSearchParams(payload);
+
+    const response = await fetch(`${API_URL}?${params.toString()}`);
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "Gagal menyimpan");
+    }
+
+    // Update data lokal
+    currentEditRow.PRELIST = payload.PRELIST;
+    currentEditRow.SUBMIT = payload.SUBMIT;
+    currentEditRow.REJECT = payload.REJECT;
+    currentEditRow.APPROVED = payload.APPROVED;
+
+    closeEditModal();
+
+    renderDashboard();
+
+    updateSyncStatus("Perubahan berhasil disimpan");
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert(err.message);
+
+  } finally {
+
+    btn.disabled = false;
+    btn.innerHTML =
+      '<i class="fa-solid fa-floppy-disk"></i> Simpan';
+
+  }
+
+}
+
 function updateLocalData(row, field, value) {
   const item = allData.find(x => x._row == row);
   if (!item) return;
@@ -1458,68 +1515,6 @@ document
   });
 
 document.getElementById("saveEditBtn").addEventListener("click", saveEditData);
-
-async function saveEditData() {
-
-  if (!currentEditRow) return;
-
-  const btn = document.getElementById("saveEditBtn");
-
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
-
-  const payload = {
-    action: "update",
-    row: currentEditRow._row,
-
-    PRELIST: Number(document.getElementById("editAssignment").value) || 0,
-    SUBMIT: Number(document.getElementById("editSubmit").value) || 0,
-    REJECT: Number(document.getElementById("editReject").value) || 0,
-    APPROVED: Number(document.getElementById("editApproved").value) || 0
-  };
-
-  try {
-
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.message || "Gagal menyimpan");
-    }
-
-    // Update data lokal
-    currentEditRow.PRELIST = payload.PRELIST;
-    currentEditRow.SUBMIT = payload.SUBMIT;
-    currentEditRow.REJECT = payload.REJECT;
-    currentEditRow.APPROVED = payload.APPROVED;
-
-    closeEditModal();
-
-    renderDashboard();
-
-    updateSyncStatus("Perubahan berhasil disimpan");
-
-  } catch (err) {
-
-    console.error(err);
-
-    alert("Gagal menyimpan data.");
-
-  } finally {
-
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan';
-
-  }
-
-}
 
 /* =========================
    INIT
