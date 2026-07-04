@@ -1560,6 +1560,12 @@ tbody tr:hover {
   transition: all 0.2s ease;
 }
 
+.toast i {
+    margin-right: 8px;
+    font-size: 1rem;
+    vertical-align: middle;
+}
+
 .toast.show {
   opacity: 1;
   transform: translateY(0);
@@ -1834,7 +1840,7 @@ tbody tr:hover {
 .btn-secondary,
 .btn-primary {
   min-width: 100px;
-  padding: 8px;
+  padding: 10px;
   border-radius: 10px;
   font-size: 13px;
   font-family: inherit;
