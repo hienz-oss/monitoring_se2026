@@ -1930,6 +1930,10 @@ tbody tr:hover {
     gap: 12px;
   }
 
+  .cards {
+    gap: 10px;
+  }
+
   .chart-card{
     padding:10px;
   }
