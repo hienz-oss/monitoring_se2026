@@ -1479,6 +1479,22 @@ function openEditModal(data) {
   document
     .getElementById("editModal")
     .classList.remove("hide");
+
+  updateOpen();
+}
+
+function updateOpen() {
+  const assignment = Number(document.getElementById("editAssignment").value) || 0;
+  const submit = Number(document.getElementById("editSubmit").value) || 0;
+  const reject = Number(document.getElementById("editReject").value) || 0;
+  const approved = Number(document.getElementById("editApproved").value) || 0;
+
+  const open = Math.max(
+    assignment - submit - reject - approved,
+    0
+  );
+
+  document.getElementById("editOpen").value = open;
 }
 
 function closeEditModal() {
@@ -1747,7 +1763,19 @@ document
 
   });
 
-document.getElementById("saveEditBtn").addEventListener("click", saveEditData);
+document
+  .getElementById("saveEditBtn")
+  .addEventListener("click", saveEditData);
+
+[
+  "editAssignment",
+  "editSubmit",
+  "editReject",
+  "editApproved"
+].forEach(id => {
+  document.getElementById(id)
+    .addEventListener("input", updateOpen);
+});
 
 /* =========================
    INIT
