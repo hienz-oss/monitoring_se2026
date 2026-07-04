@@ -1913,6 +1913,10 @@ tbody tr:hover {
 }
 
 @media (max-width: 768px) {
+  body {
+    font-size: 12px;
+  }
+
   .refresh-btn, .setting-btn {
     width: 30px;
   }
@@ -1937,6 +1941,10 @@ tbody tr:hover {
   .ppl-cards {
     gap: 10px;
   }
+
+  .ppl-name {
+        font-size: 13px;
+    }
 
   .chart-card{
     padding:10px;
@@ -1982,6 +1990,25 @@ tbody tr:hover {
   
   .panel-title, .section-title {
     font-size: 14px;
+  }
+
+  .pagination {
+    padding: 10px;
+  }
+
+  .pagination-info {
+    font-size: 12px;
+  }
+
+  .pagination-nav {
+    gap: 4px;
+  }
+
+  .pagination button {
+    height: 30px;
+    min-width: 30px;
+    font-weight: 400;
+    padding: 4px;
   }
 }
 
@@ -2074,10 +2101,6 @@ tbody tr:hover {
 
   .ppl-cards {
     grid-template-columns: repeat(1, 1fr);
-  }
-
-  .ppl-name {
-    font-size: 14px;
   }
 
   .ppl-stats {
