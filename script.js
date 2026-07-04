@@ -12,7 +12,7 @@ const rowsPerPage = 10;
 function showToast(message, type = "success") {
   const toast = document.getElementById("toast");
 
-  toast.textContent = message;
+  toast.innerHTML = message;
 
   toast.className = `toast ${type} show`;
 
@@ -116,7 +116,7 @@ async function saveEditData() {
   const btn = document.getElementById("saveEditBtn");
 
   btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Simpan';
 
   const getValue = id => {
     const value = document.getElementById(id).value.trim();
@@ -151,12 +151,8 @@ async function saveEditData() {
     currentEditRow.APPROVED = payload.APPROVED;
 
     closeEditModal();
-
     renderDashboard();
-
-    updateSyncStatus("Perubahan berhasil disimpan");
-
-    showToast("Data berhasil disimpan");
+    showToast('<i class="fa-solid fa-circle-check"></i> Data berhasil disimpan');
 
   } catch (err) {
 
