@@ -724,13 +724,16 @@ body {
 
 .toolbar {
   display: flex;
+  justify-content: flex-end;
   gap: 12px;
   margin: 10px 0;
+  border: 1px solid #f00;
 }
 
 .search-wrap {
   position: relative;
-  flex: 1;
+  max-width: 300px;
+  width: 300px;
 }
 
 .search-wrap input {
@@ -1714,7 +1717,7 @@ tbody tr:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 15px;
+  padding: 5px 15px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
 }
@@ -1748,7 +1751,7 @@ tbody tr:hover {
 ========================= */
 
 .edit-body {
-  padding: 15px;
+  padding: 10px 15px;
   background: var(--surface);
 }
 
@@ -1992,6 +1995,10 @@ tbody tr:hover {
     font-size: 14px;
   }
 
+  .toolbar {
+    gap: 5px;
+  }
+
   .pagination {
     padding: 10px;
   }
@@ -2010,6 +2017,10 @@ tbody tr:hover {
     font-weight: 400;
     padding: 4px;
   }
+
+  .form-group {
+    margin-bottom: 10px;
+}
 }
 
 @media(max-width:600px) {
