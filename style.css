@@ -426,8 +426,8 @@ body {
 }
 
 .refresh-btn {
-  width: 30px;
   height: 30px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -436,11 +436,16 @@ body {
   border-radius: 10px;
   color: var(--text-muted);
   cursor: pointer;
+  font-family: inherit;
   transition:
     color .2s ease,
     border-color .2s ease,
     background .2s ease,
     transform .15s ease;
+}
+
+.refresh-btn i {
+  margin-right: 8px;
 }
 
 .refresh-btn:hover {
@@ -468,8 +473,8 @@ body {
 }
 
 .setting-btn {
-  width: 30px;
   height: 30px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -478,11 +483,16 @@ body {
   border-radius: 10px;
   color: var(--text-muted);
   cursor: pointer;
+  font-family: inherit;
   transition:
     color .2s ease,
     border-color .2s ease,
     background .2s ease,
     transform .15s ease;
+}
+
+.setting-btn i {
+  margin-right: 8px;
 }
 
 .setting-btn:hover {
@@ -1460,10 +1470,7 @@ tbody tr:hover {
 }
 
 .edit-btn {
-  width: 30px;
-  height: 30px;
   border: none;
-  border-radius: 8px;
   background: transparent;
   color: var(--text);
   cursor: pointer;
@@ -1904,6 +1911,18 @@ tbody tr:hover {
 }
 
 @media (max-width: 768px) {
+  .refresh-btn, .setting-btn {
+    width: 30px;
+  }
+
+  .refresh-btn i, .setting-btn i {
+    margin-right: 0;
+  }
+
+  .refresh-btn span, .setting-btn span {
+    display: none;
+  }
+
   .chart-wrapper {
     grid-template-columns: 1fr;
     gap: 12px;
