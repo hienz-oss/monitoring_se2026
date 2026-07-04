@@ -1966,6 +1966,13 @@ tbody tr:hover {
     font-size:9px;
   }
 
+  #pplTableSection th:nth-child(8),
+  #pplTableSection td:nth-child(8),
+  #pplTableSection th:nth-child(9),
+  #pplTableSection td:nth-child(9) {
+    display: none;
+  }
+
   #desaTableSection th:nth-child(8),
   #desaTableSection td:nth-child(8),
   #desaTableSection th:nth-child(9),
