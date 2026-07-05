@@ -727,7 +727,6 @@ body {
   justify-content: flex-end;
   gap: 12px;
   margin: 10px 0;
-  border: 1px solid #f00;
 }
 
 .search-wrap {
@@ -1699,7 +1698,7 @@ tbody tr:hover {
 }
 
 .edit-modal {
-  width: 480px;
+  width: 420px;
   max-width: 90vw;
   background: var(--surface);
   color: var(--text);
@@ -1730,7 +1729,6 @@ tbody tr:hover {
 }
 
 .modal-close {
-  width: 36px;
   height: 36px;
   border: none;
   border-radius: 8px;
@@ -1742,7 +1740,6 @@ tbody tr:hover {
 }
 
 .modal-close:hover {
-  background: var(--badge-bg);
   color: var(--text);
 }
 
@@ -1756,7 +1753,7 @@ tbody tr:hover {
 }
 
 .form-group {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .form-group:last-child {
@@ -1765,7 +1762,7 @@ tbody tr:hover {
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   font-size: 13px;
   color: var(--text);
 }
@@ -1820,20 +1817,74 @@ tbody tr:hover {
   color: var(--text-muted);
 }
 
-/* number align */
-.form-group input[type="number"] {
-  text-align: right;
+/* =========================
+   NUMBER SPINNER
+========================= */
+
+.number-spinner {
+    position: relative;
+    width: 100%;
 }
 
-.form-group input[type="number"]::-webkit-outer-spin-button,
-.form-group input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.number-spinner input {
+    width: 100%;
+    padding-right: 58px;
 }
 
-.form-group input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
+/* Hilangkan spinner bawaan browser */
+.number-spinner input::-webkit-inner-spin-button,
+.number-spinner input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.number-spinner input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.spinner-inline {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: stretch;
+}
+
+.spinner-inline button {
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-left: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: .2s;
+}
+
+.spin-up {
+  border-radius: 0 10px 10px 0;
+}
+
+.spinner-inline button:hover {
+    background: rgba(0,0,0,.05);
+    color: var(--text);
+}
+
+[data-theme="dark"] .spinner-inline button:hover {
+    background: rgba(255,255,255,.08);
+}
+
+.spinner-inline button:active {
+    color: #fff;
+}
+
+.spinner-inline i {
+    font-size: 12px;
+    pointer-events: none;
 }
 
 /* =========================
@@ -1878,6 +1929,10 @@ tbody tr:hover {
 
 .btn-primary:hover {
   background: #1d4ed8;
+}
+
+.btn-primary i {
+  margin-right: 8px;
 }
 
 /* =========================
