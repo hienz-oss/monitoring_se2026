@@ -284,7 +284,7 @@
                     </table>
                 </div>
 
-                <div class="chat-wrapper">
+                <div class="chart-wrapper">
                 <div class="chart-card">
                     <div class="chart-header">
                         <div class="chart-title">Grafik Progress PPL</div>
@@ -319,7 +319,7 @@
                     </table>
                 </div>
 
-                <div class="chat-wrapper">
+                <div class="chart-wrapper">
                 <div class="chart-card">
                     <div class="chart-header">
                         <div class="chart-title">Grafik Progress Desa</div>
@@ -336,13 +336,6 @@
                     Rekapitulasi Capaian SLS
                 </h3>
                 <div class="toolbar">
-                    <div class="search-wrap">
-                        <input type="text" id="searchInput" placeholder="Cari Desa, SLS atau PPL...">
-                        <button id="clearSearch" class="clear-search" title="Hapus pencarian">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-
                     <select id="desaFilter">
                         <option value="">Semua Desa</option>
                     </select>
@@ -357,6 +350,13 @@
                         <option value="Belum Selesai">Belum Selesai</option>
                         <option value="Selesai">Selesai</option>
                     </select>
+
+                    <div class="search-wrap">
+                        <input type="text" id="searchInput" placeholder="Cari Desa, SLS atau PPL...">
+                        <button id="clearSearch" class="clear-search" title="Hapus pencarian">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-section">
@@ -396,68 +396,121 @@
     </div>
 
     <!-- =========================
-         EDIT MODAL
-    ========================= -->
-    <div id="editModal" class="modal-overlay hide">
-        <div class="edit-modal">
-    
-            <div class="edit-header">
-                <h3>Edit Capaian SLS</h3>
-    
-                <button id="closeEditModal" class="modal-close" title="Tutup">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-    
-            <div class="edit-body">
-    
-                <div class="form-group">
-                    <label for="editDesa">Desa</label>
-                    <input id="editDesa" type="text" readonly>
-                </div>
-    
-                <div class="form-group">
-                    <label for="editSls">SLS</label>
-                    <input id="editSls" type="text" readonly>
-                </div>
-    
-                <div class="form-group horizontal">
-                    <label for="editOpen">Open</label>
-                    <input id="editOpen" type="number" readonly>
-                </div>
-    
-                <div class="form-group horizontal">
-                    <label for="editAssignment">Assignment</label>
-                    <input id="editAssignment" type="number" min="0">
-                </div>
-    
-                <div class="form-group horizontal">
-                    <label for="editSubmit">Submit</label>
-                    <input id="editSubmit" type="number" min="0">
-                </div>
-    
-                <div class="form-group horizontal">
-                    <label for="editReject">Reject</label>
-                    <input id="editReject" type="number" min="0">
-                </div>
-    
-                <div class="form-group horizontal">
-                    <label for="editApproved">Approved</label>
-                    <input id="editApproved" type="number" min="0">
-                </div>
-    
-            </div>
-    
-            <div class="edit-footer">
-                <button id="cancelEditBtn" class="btn-secondary">Batal</button>
-                <button id="saveEditBtn" class="btn-primary">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    Simpan
-                </button>
-            </div>
-    
+     EDIT MODAL
+========================= -->
+<div id="editModal" class="modal-overlay hide">
+    <div class="edit-modal">
+
+        <div class="edit-header">
+            <h3>Edit Capaian SLS</h3>
+
+            <button id="closeEditModal" class="modal-close" title="Tutup">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
+
+        <div class="edit-body">
+
+            <div class="form-group">
+                <label for="editDesa">Desa</label>
+                <input id="editDesa" type="text" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="editSls">SLS</label>
+                <input id="editSls" type="text" readonly>
+            </div>
+
+            <div class="form-group horizontal">
+                <label for="editOpen">Open</label>
+                <input id="editOpen" type="number" readonly>
+            </div>
+
+            <div class="form-group horizontal">
+                <label for="editAssignment">Assignment</label>
+
+                <div class="number-spinner">
+                    <input id="editAssignment" type="number" min="0">
+
+                    <div class="spinner-inline">
+                        <button type="button" class="spin-down" data-target="editAssignment">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <button type="button" class="spin-up" data-target="editAssignment">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group horizontal">
+                <label for="editSubmit">Submit</label>
+
+                <div class="number-spinner">
+                    <input id="editSubmit" type="number" min="0">
+
+                    <div class="spinner-inline">
+                        <button type="button" class="spin-down" data-target="editSubmit">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <button type="button" class="spin-up" data-target="editSubmit">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group horizontal">
+                <label for="editReject">Reject</label>
+
+                <div class="number-spinner">
+                    <input id="editReject" type="number" min="0">
+
+                    <div class="spinner-inline">
+                        <button type="button" class="spin-down" data-target="editReject">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <button type="button" class="spin-up" data-target="editReject">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group horizontal">
+                <label for="editApproved">Approved</label>
+
+                <div class="number-spinner">
+                    <input id="editApproved" type="number" min="0">
+
+                    <div class="spinner-inline">
+                        <button type="button" class="spin-down" data-target="editApproved">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <button type="button" class="spin-up" data-target="editApproved">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="edit-footer">
+            <button id="cancelEditBtn" class="btn-secondary">Batal</button>
+
+            <button id="saveEditBtn" class="btn-primary">
+                <i class="fa-solid fa-floppy-disk"></i>
+                Simpan
+            </button>
+        </div>
+
     </div>
+</div>
 
     <div class="footer">
         <div class="footer-left">
