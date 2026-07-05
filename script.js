@@ -1778,6 +1778,37 @@ document
 });
 
 /* =========================
+   CUSTOM NUMBER SPINNER
+========================= */
+
+document.addEventListener("click", (e) => {
+
+  const button = e.target.closest(".spin-up, .spin-down");
+  if (!button) return;
+
+  const input = document.getElementById(button.dataset.target);
+  if (!input || input.readOnly || input.disabled) return;
+
+  const min = Number(input.min || 0);
+  const max = input.max === "" ? Infinity : Number(input.max);
+  const step = Number(input.step || 1);
+
+  let value = Number(input.value) || 0;
+
+  if (button.classList.contains("spin-up")) {
+    value = Math.min(value + step, max);
+  } else {
+    value = Math.max(value - step, min);
+  }
+
+  input.value = value;
+
+  // supaya updateOpen() tetap berjalan
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+
+});
+
+/* =========================
    INIT
 ========================= */
 
