@@ -527,7 +527,7 @@ body {
 .setting-panel h3 {
   margin: 0;
   padding: 4px 0 8px 0;
-  font-size: 13px;
+  font-size: 14px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -654,7 +654,7 @@ body {
 }
 
 .card .value {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   margin-top: 8px;
 }
@@ -777,7 +777,7 @@ body {
   gap: 8px;
   margin-bottom: 10px;
   padding-bottom: 10px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   border-bottom: 1px solid var(--title-border);
 }
@@ -1106,7 +1106,7 @@ body {
   gap: 8px;
   margin-bottom: 10px;
   padding-bottom: 10px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   border-bottom: 1px solid var(--title-border);
 }
@@ -1548,7 +1548,7 @@ tbody tr:hover {
 
 .empty-state h4 {
   margin-bottom: 6px;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .empty-state p {
@@ -1558,8 +1558,8 @@ tbody tr:hover {
 
 .toast {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 55px;
+  right: 25px;
   z-index: 9999;
   padding: 10px 14px;
   border-radius: 8px;
@@ -1608,6 +1608,78 @@ tbody tr:hover {
 [data-theme="dark"] .empty {
   background: #334155;
   color: #cbd5e1;
+}
+
+/* =========================
+   GO TOP BUTTON
+========================= */
+
+.go-top-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--border);
+    border-radius: 50%;
+
+    background: var(--surface);
+    color: #f59e0b;
+
+    box-shadow: var(--shadow);
+
+    cursor: pointer;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateY(15px);
+
+    transition:
+        opacity .25s,
+        transform .25s,
+        background .2s,
+        border-color .2s,
+        color .2s;
+
+    z-index: 999;
+}
+
+.go-top-btn.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.go-top-btn:hover {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: #fff;
+    transform: translateY(-3px);
+}
+
+.go-top-btn:active {
+    transform: scale(.95);
+}
+
+.go-top-btn i {
+    font-size: 16px;
+}
+
+[data-theme="dark"] .go-top-btn {
+    background: var(--surface);
+    color: #fbbf24;
+}
+
+[data-theme="dark"] .go-top-btn:hover {
+    background: #c57f00;
+    border-color: #c57f00;
+    color: #fff;
 }
 
 /* =========================
@@ -2076,7 +2148,14 @@ tbody tr:hover {
 
   .form-group {
     margin-bottom: 10px;
-}
+  }
+
+  .go-top-btn {
+    width: 42px;
+    height: 42px;
+    right: 16px;
+    bottom: 16px;
+  }
 }
 
 @media(max-width:600px) {
