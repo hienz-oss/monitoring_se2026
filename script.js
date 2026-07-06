@@ -1475,6 +1475,7 @@ function openEditModal(data) {
   document.getElementById("editSubmit").value = data.SUBMIT;
   document.getElementById("editReject").value = data.REJECT;
   document.getElementById("editApproved").value = data.APPROVED;
+  document.getElementById("editProgress").value = formatPercent(angka(data.PROGRESS));
 
   document
     .getElementById("editModal")
@@ -1494,7 +1495,12 @@ function updateOpen() {
     0
   );
 
+  const progress = assignment > 0
+    ? ((submit + approved) / assignment) * 100
+    : 0;
+
   document.getElementById("editOpen").value = open;
+  document.getElementById("editProgress").value = formatPercent(progress);
 }
 
 function closeEditModal() {
