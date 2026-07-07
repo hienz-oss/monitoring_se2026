@@ -1523,10 +1523,6 @@ tbody tr:last-child td {
   box-shadow: none;
 }
 
-tbody tr:last-child td {
-  padding: 6px;
-}
-
 tbody td {
   padding: 4px 0;
   border-bottom: 1px solid var(--border);
