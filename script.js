@@ -649,22 +649,10 @@ function renderPplCards() {
       container.innerHTML += `
         <div class="ppl-card">
           <div class="ppl-name">
-            <span class="ppl-avatar">
-              ${initials}
-            </span>
             <span>${ppl}</span>
             <span class="badge ${progressClass}">
               ${formatPercent(progress)}
             </span>
-          </div>
-
-          <div class="ppl-progress">
-            <div class="ppl-progress-track">
-              <div
-                class="ppl-progress-fill"
-                style="width:${Math.min(progress, 100)}%">
-              </div>
-            </div>
           </div>
 
           <div class="ppl-stats">
@@ -686,6 +674,15 @@ function renderPplCards() {
             <div class="ppl-stat">
               <span>Approved</span>
               <strong>${formatNumber(data.approve)}</strong>
+            </div>
+          </div>
+
+          <div class="ppl-progress">
+            <div class="ppl-progress-track">
+              <div
+                class="ppl-progress-fill"
+                style="width:${Math.min(progress, 100)}%">
+              </div>
             </div>
           </div>
         </div>
@@ -1431,22 +1428,46 @@ function renderPagination(data) {
     </div>
 
     <div class="pagination-nav">
-      <button
-        class="nav-btn"
-        ${currentPage === 1 ? "disabled" : ""}
-        onclick="changePage(${currentPage - 1})">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
 
-      ${pages}
+  <!-- First -->
+  <button
+    class="nav-btn"
+    ${currentPage === 1 ? "disabled" : ""}
+    onclick="changePage(1)"
+    title="Halaman Pertama">
+    <i class="fa-solid fa-angles-left"></i>
+  </button>
 
-      <button
-        class="nav-btn"
-        ${currentPage === totalPages ? "disabled" : ""}
-        onclick="changePage(${currentPage + 1})">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-    </div>
+  <!-- Previous -->
+  <button
+    class="nav-btn"
+    ${currentPage === 1 ? "disabled" : ""}
+    onclick="changePage(${currentPage - 1})"
+    title="Sebelumnya">
+    <i class="fa-solid fa-chevron-left"></i>
+  </button>
+
+  ${pages}
+
+  <!-- Next -->
+  <button
+    class="nav-btn"
+    ${currentPage === totalPages ? "disabled" : ""}
+    onclick="changePage(${currentPage + 1})"
+    title="Berikutnya">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+
+  <!-- Last -->
+  <button
+    class="nav-btn"
+    ${currentPage === totalPages ? "disabled" : ""}
+    onclick="changePage(${totalPages})"
+    title="Halaman Terakhir">
+    <i class="fa-solid fa-angles-right"></i>
+  </button>
+
+</div>
   `;
 }
 
