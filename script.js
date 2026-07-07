@@ -22,9 +22,22 @@ function showToast(message, type = "success") {
 
 }
 
+function showSyncOverlay() {
+  document
+    .getElementById("syncOverlay")
+    .classList.remove("hide");
+}
+
+function hideSyncOverlay() {
+  document
+    .getElementById("syncOverlay")
+    .classList.add("hide");
+}
+
 async function loadData() {
-  const loader =
-    document.getElementById("tableLoader");
+  showSyncOverlay();
+
+  const loader = document.getElementById("tableLoader");
 
   updateSyncStatus("Memeriksa data, mohon tunggu ...");
   renderTopPplSkeleton();
@@ -104,6 +117,8 @@ async function loadData() {
     console.error("Gagal mengambil data:", error);
     updateSyncStatus("Gagal sinkronisasi data");
   } finally {
+    hideSyncOverlay();
+
     if (loader) {
       loader.classList.add("hide");
     }
@@ -1846,15 +1861,5 @@ const refreshBtn =
   document.getElementById("refreshBtn");
 
 if (refreshBtn) {
-  refreshBtn.addEventListener("click", async () => {
-    if (refreshBtn.classList.contains("loading")) return;
-
-    refreshBtn.classList.add("loading");
-
-    try {
-      await loadData();
-    } finally {
-      refreshBtn.classList.remove("loading");
-    }
-  });
+  refreshBtn.addEventListener("click", loadData);
 }
