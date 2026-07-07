@@ -1584,6 +1584,7 @@ td:last-child {
 
 .summary-total-row td {
   border-top: 2px solid var(--border);
+  padding: 6px;
 }
 
 .delta {
