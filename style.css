@@ -815,22 +815,6 @@ body {
   transition: transform .2s ease;
 }
 
-.ppl-card:not(.skeleton-card)::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  width: 0;
-  height: 2px;
-  background: #f59e0b;
-  transition: width .3s ease;
-}
-
-.ppl-card:not(.skeleton-card):hover::before {
-  width: 100%;
-}
-
 .ppl-card:hover {
   box-shadow:
     0 4px 12px rgba(0, 0, 0, .12);
@@ -959,45 +943,6 @@ body {
   font-size: 12px;
   font-weight: 800;
   line-height: 1;
-}
-
-.skeleton-card {
-  min-height: 100px;
-  position: relative;
-  overflow: hidden;
-}
-
-.skeleton-card::before {
-  content: "";
-  display: block;
-  width: 50%;
-  height: 14px;
-  border-radius: 8px;
-  background: var(--border);
-  margin-bottom: 10px;
-}
-
-.skeleton-card::after {
-  content: "";
-  display: block;
-  height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(90deg,
-      var(--border),
-      var(--surface),
-      var(--border));
-  background-size: 200% 100%;
-  animation: skeletonMove 1.5s infinite;
-}
-
-@keyframes skeletonMove {
-  from {
-    background-position: 200% 0;
-  }
-
-  to {
-    background-position: -200% 0;
-  }
 }
 
 /* =========================
@@ -1198,45 +1143,6 @@ body {
   color: #6b7280;
 }
 
-.top-skeleton {
-  height: 34px;
-  border-bottom: 1px solid var(--border);
-  position: relative;
-  overflow: hidden;
-}
-
-.top-skeleton::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 9px;
-  width: 55%;
-  height: 12px;
-  border-radius: 999px;
-  background: linear-gradient(90deg,
-      var(--border),
-      var(--surface),
-      var(--border));
-  background-size: 200% 100%;
-  animation: skeletonMove 1.5s infinite;
-}
-
-.top-skeleton::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 9px;
-  width: 58px;
-  height: 12px;
-  border-radius: 999px;
-  background: linear-gradient(90deg,
-      var(--border),
-      var(--surface),
-      var(--border));
-  background-size: 200% 100%;
-  animation: skeletonMove 1.5s infinite;
-}
-
 .status-row {
   margin-bottom: 14px;
 }
@@ -1275,7 +1181,6 @@ body {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: .75rem;
   font-weight: 600;
 }
 
