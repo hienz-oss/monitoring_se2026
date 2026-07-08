@@ -1757,7 +1757,6 @@ td:last-child {
   border-top: 1px solid var(--border);
   color: var(--text-muted);
   font-size: 12px;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1769,6 +1768,10 @@ td:last-child {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.footer-left i {
+  color: var(--badge-danger-text);
 }
 
 /* kanan */
