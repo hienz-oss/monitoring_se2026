@@ -1874,6 +1874,58 @@ td:last-child {
   box-shadow: 0 0 0 2px rgba(245, 158, 11, .15);
 }
 
+.input-icon-group {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: .2s ease;
+}
+
+.input-icon-group:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, .08);
+}
+
+.input-icon-group:focus-within {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, .15);
+}
+
+.input-icon-group input {
+  border: 0;
+  box-shadow: none;
+}
+
+.input-icon-group input:hover,
+.input-icon-group input:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.input-icon-box {
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+  border-radius: 8px 0 0 8px;
+}
+
+.input-icon-box i {
+  font-size: 13px;
+}
+
+.input-icon-group input {
+  flex: 1;
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  padding-left: 12px;
+}
+
 /* Label di kiri (horizontal form) */
 .form-group.horizontal {
   display: flex;
