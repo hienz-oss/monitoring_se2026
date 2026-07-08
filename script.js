@@ -6,6 +6,9 @@ let currentEditRow = null;
 let pplSummaryData = {};
 let desaSummaryData = {};
 
+let lastReject = 0;
+let lastApproved = 0;
+
 let currentPage = 1;
 const rowsPerPage = 10;
 
@@ -40,8 +43,6 @@ async function loadData() {
   const loader = document.getElementById("tableLoader");
 
   updateSyncStatus("Memeriksa data, mohon tunggu ...");
-  renderTopPplSkeleton();
-  renderTopDesaSkeleton();
 
   if (loader) {
     loader.classList.remove("hide");
@@ -755,21 +756,6 @@ function renderTopPpl() {
   }
 }
 
-function renderTopPplSkeleton() {
-  const container =
-    document.getElementById("topPplList");
-
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  for (let i = 0; i < 4; i++) {
-    container.innerHTML += `
-      <div class="top-skeleton"></div>
-    `;
-  }
-}
-
 function renderTopDesa() {
   const container =
     document.getElementById("topDesaList");
@@ -828,24 +814,6 @@ function renderTopDesa() {
       </div>
     `;
   }
-}
-
-function renderTopDesaSkeleton() {
-  const container =
-    document.getElementById("topDesaList");
-
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  for (let i = 0; i < 4; i++) {
-
-    container.innerHTML += `
-      <div class="top-skeleton"></div>
-    `;
-
-  }
-
 }
 
 function renderPplSummary() {
@@ -1489,6 +1457,9 @@ function changePage(page) {
 }
 
 function openEditModal(data) {
+  lastReject = angka(data.REJECT);
+  lastApproved = angka(data.APPROVED);
+
   currentEditRow = data;
 
   document.getElementById("editDesa").value = data.NAMA_DESA;
@@ -1537,6 +1508,40 @@ function updateOpen() {
 
   document.getElementById("editOpen").value = open;
   document.getElementById("editProgress").value = formatPercent(progress);
+}
+
+function syncSubmitFromReview() {
+
+  const submitInput = document.getElementById("editSubmit");
+  const rejectInput = document.getElementById("editReject");
+  const approvedInput = document.getElementById("editApproved");
+
+  let submit = Number(submitInput.value) || 0;
+  const reject = Number(rejectInput.value) || 0;
+  const approved = Number(approvedInput.value) || 0;
+
+  // Reject bertambah
+  if (reject > lastReject) {
+    submit = Math.max(
+      submit - (reject - lastReject),
+      0
+    );
+  }
+
+  // Approved bertambah
+  if (approved > lastApproved) {
+    submit = Math.max(
+      submit - (approved - lastApproved),
+      0
+    );
+  }
+
+  submitInput.value = submit > 0 ? submit : "";
+
+  lastReject = reject;
+  lastApproved = approved;
+
+  updateOpen();
 }
 
 function closeEditModal() {
@@ -1784,6 +1789,14 @@ document.addEventListener("click", (e) => {
   }
 
 });
+
+document
+  .getElementById("editReject")
+  .addEventListener("input", syncSubmitFromReview);
+
+document
+  .getElementById("editApproved")
+  .addEventListener("input", syncSubmitFromReview);
 
 document
   .getElementById("cancelEditBtn")
