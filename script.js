@@ -1129,9 +1129,12 @@ function getChartTheme() {
 }
 
 function renderApexChart(containerId, summaryData) {
+
   const theme = getChartTheme();
+
   const labels = [];
-  const values = [];
+  const progressValues = [];
+  const approvedValues = [];
 
   Object.entries(summaryData).forEach(([label, d]) => {
 
@@ -1139,8 +1142,13 @@ function renderApexChart(containerId, summaryData) {
       ? ((d.submit + d.approve) / d.muatan) * 100
       : 0;
 
+    const approved = d.muatan > 0
+      ? (d.approve / d.muatan) * 100
+      : 0;
+
     labels.push(label);
-    values.push(Number(progress.toFixed(2)));
+    progressValues.push(Number(progress.toFixed(2)));
+    approvedValues.push(Number(approved.toFixed(2)));
 
   });
 
@@ -1149,83 +1157,100 @@ function renderApexChart(containerId, summaryData) {
 
   const options = {
 
-  chart: {
-    type: "bar",
-    height: 320,
-    fontFamily: theme.font,
-    foreColor: theme.text,
-    toolbar: {
-      show: false
-    }
-  },
-
-  theme: {
-    mode: theme.theme
-  },
-
-  colors: ["#22c55e"],
-
-  series: [{
-    name: "Progress",
-    data: values
-  }],
-
-  plotOptions: {
-    bar: {
-      borderRadius: 4,
-      columnWidth: "45%",
-      dataLabels: {
-        position: "top"
+    chart: {
+      type: "bar",
+      height: 320,
+      fontFamily: theme.font,
+      foreColor: theme.text,
+      toolbar: {
+        show: false
       }
-    }
-  },
+    },
 
-  xaxis: {
-    categories: labels,
-    labels: {
-      style: {
-        colors: theme.text
-      }
-    }
-  },
+    theme: {
+      mode: theme.theme
+    },
 
-  yaxis: {
-    min: 0,
-    max: 100,
-    tickAmount: 5,
-    labels: {
-      style: {
-        colors: theme.text
+    colors: [
+      "#22c55e", // Progress
+      "#3b82f6"  // Approved
+    ],
+
+    series: [
+      {
+        name: "Progress",
+        data: progressValues
       },
-      formatter: value => formatPercent(value)
+      {
+        name: "% Approved",
+        data: approvedValues
+      }
+    ],
+
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        columnWidth: "70%",
+        dataLabels: {
+          position: "top"
+        }
+      }
+    },
+
+    xaxis: {
+      categories: labels,
+      labels: {
+        style: {
+          colors: theme.text
+        }
+      }
+    },
+
+    yaxis: {
+      min: 0,
+      max: 100,
+      tickAmount: 5,
+      labels: {
+        style: {
+          colors: theme.text
+        },
+        formatter: value => formatPercent(value)
+      }
+    },
+
+    grid: {
+      borderColor: theme.border
+    },
+
+    dataLabels: {
+      enabled: true,
+      formatter: value => formatPercent(value),
+      offsetY: -20,
+      style: {
+        colors: [theme.text],
+        fontSize: "12px",
+        fontWeight: 600
+      }
+    },
+
+    tooltip: {
+      theme: theme.theme,
+      y: {
+        formatter: value => formatPercent(value)
+      }
+    },
+
+    legend: {
+      position: "top",
+      labels: {
+        colors: theme.text
+      }
     }
-  },
 
-  grid: {
-    borderColor: theme.border
-  },
-
-  dataLabels: {
-    enabled: true,
-    formatter: value => formatPercent(value),
-    offsetY: -20,
-    style: {
-      colors: [theme.text],
-      fontSize: "12px",
-      fontWeight: 600
-    }
-  },
-
-  tooltip: {
-    theme: theme.theme,
-    y: {
-      formatter: value => formatPercent(value)
-    }
-  }
-
-};
+  };
 
   new ApexCharts(container, options).render();
+
 }
 
 function renderChartPpl() {
