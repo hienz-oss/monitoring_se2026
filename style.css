@@ -886,6 +886,7 @@ body {
 
 .ppl-name .badge {
   margin-left: auto;
+  font-size: 12px;
 }
 
 .ppl-name strong {
