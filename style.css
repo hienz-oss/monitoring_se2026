@@ -1796,20 +1796,19 @@ td:last-child {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 15px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
 }
 
 .edit-header h3 {
   margin: 0;
+  padding: 15px;
   font-size: 14px;
   font-weight: 700;
   color: var(--text);
 }
 
 .modal-close {
-  height: 36px;
   border: none;
   border-radius: 8px;
   background: transparent;
