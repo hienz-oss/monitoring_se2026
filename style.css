@@ -42,11 +42,11 @@
   --primary: #0d6efd;
 
   --card-hover-gradient:
-      linear-gradient(135deg,
-        rgba(233, 162, 39, .18) 0%,
-        rgba(233, 162, 39, .10) 18%,
-        rgba(233, 162, 39, .04) 40%,
-        var(--surface) 75%);
+    linear-gradient(135deg,
+      rgba(233, 162, 39, .18) 0%,
+      rgba(233, 162, 39, .10) 18%,
+      rgba(233, 162, 39, .04) 40%,
+      var(--surface) 75%);
 }
 
 [data-theme="dark"] {
@@ -90,11 +90,11 @@
   --summary-row-bg: #2b3445;
 
   --card-hover-gradient:
-      linear-gradient(135deg,
-        rgba(251, 191, 36, .16) 0%,
-        rgba(251, 191, 36, .08) 18%,
-        rgba(251, 191, 36, .03) 40%,
-        var(--surface) 75%);
+    linear-gradient(135deg,
+      rgba(251, 191, 36, .16) 0%,
+      rgba(251, 191, 36, .08) 18%,
+      rgba(251, 191, 36, .03) 40%,
+      var(--surface) 75%);
 }
 
 * {
@@ -181,10 +181,10 @@ body {
   cursor: pointer;
   transition: .25s;
   box-shadow:
-      inset 0 1px 3px rgba(146, 64, 14, .28),
-      /* shadow atas */
-      inset 0 -1px 1px rgba(255, 255, 255, .65);
-    /* highlight bawah */
+    inset 0 1px 3px rgba(146, 64, 14, .28),
+    /* shadow atas */
+    inset 0 -1px 1px rgba(255, 255, 255, .65);
+  /* highlight bawah */
 }
 
 .theme-slider::before {
@@ -827,9 +827,9 @@ body {
   border: 1px solid var(--border);
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   transition:
-      background .35s ease,
-      box-shadow .35s ease,
-      transform .25s ease;
+    background .35s ease,
+    box-shadow .35s ease,
+    transform .25s ease;
 }
 
 .ppl-card:hover {
@@ -1581,9 +1581,9 @@ td:last-child {
 }
 
 .toast i {
-    margin-right: 8px;
-    font-size: 1rem;
-    vertical-align: middle;
+  margin-right: 8px;
+  font-size: 1rem;
+  vertical-align: middle;
 }
 
 .toast.show {
@@ -1623,62 +1623,62 @@ td:last-child {
 ========================= */
 
 .go-top-btn {
-    position: fixed;
-    right: 24px;
-    bottom: 46px;
-    width: 46px;
-    height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    background: var(--surface);
-    color: #f59e0b;
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(15px);
-    transition:
-        opacity .25s,
-        transform .25s,
-        background .2s,
-        border-color .2s,
-        color .2s;
-    z-index: 999;
+  position: fixed;
+  right: 24px;
+  bottom: 46px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: #f59e0b;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px);
+  transition:
+    opacity .25s,
+    transform .25s,
+    background .2s,
+    border-color .2s,
+    color .2s;
+  z-index: 999;
 }
 
 .go-top-btn.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .go-top-btn:hover {
-    background: #f59e0b;
-    border-color: #f59e0b;
-    color: #fff;
-    transform: translateY(-3px);
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #fff;
+  transform: translateY(-3px);
 }
 
 .go-top-btn:active {
-    transform: scale(.95);
+  transform: scale(.95);
 }
 
 .go-top-btn i {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 [data-theme="dark"] .go-top-btn {
-    background: var(--surface);
-    color: #fbbf24;
+  background: var(--surface);
+  color: #fbbf24;
 }
 
 [data-theme="dark"] .go-top-btn:hover {
-    background: #c57f00;
-    border-color: #c57f00;
-    color: #fff;
+  background: #c57f00;
+  border-color: #c57f00;
+  color: #fff;
 }
 
 /* =========================
@@ -1796,7 +1796,7 @@ td:last-child {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 15px;
+  padding: 8px 15px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
 }
@@ -1810,8 +1810,10 @@ td:last-child {
 
 .modal-close {
   border: none;
-  border-radius: 8px;
-  background: transparent;
+  border-radius: 50%;
+  height: 25px;
+  width: 25px;
+  background: var(--border);
   color: var(--text-muted);
   font-size: 16px;
   cursor: pointer;
@@ -1912,7 +1914,7 @@ td:last-child {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
+  background: var(--border);
   color: var(--text-muted);
   border-right: 1px solid var(--border);
   border-radius: 8px 0 0 8px;
@@ -1950,47 +1952,47 @@ td:last-child {
 ========================= */
 
 .number-spinner {
-    position: relative;
-    width: 100%;
+  position: relative;
+  width: 100%;
 }
 
 .number-spinner input {
-    width: 100%;
-    padding-right: 58px;
+  width: 100%;
+  padding-right: 58px;
 }
 
 /* Hilangkan spinner bawaan browser */
 .number-spinner input::-webkit-inner-spin-button,
 .number-spinner input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .number-spinner input[type="number"] {
-    appearance: textfield;
-    -moz-appearance: textfield;
+  appearance: textfield;
+  -moz-appearance: textfield;
 }
 
 .spinner-inline {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: stretch;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: stretch;
 }
 
 .spinner-inline button {
-    width: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-left: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: .2s;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-left: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: .2s;
 }
 
 .spin-up {
@@ -1998,21 +2000,21 @@ td:last-child {
 }
 
 .spinner-inline button:hover {
-    background: rgba(0,0,0,.05);
-    color: var(--text);
+  background: rgba(0, 0, 0, .05);
+  color: var(--text);
 }
 
 [data-theme="dark"] .spinner-inline button:hover {
-    background: rgba(255,255,255,.08);
+  background: rgba(255, 255, 255, .08);
 }
 
 .spinner-inline button:active {
-    color: #fff;
+  color: #fff;
 }
 
 .spinner-inline i {
-    font-size: 12px;
-    pointer-events: none;
+  font-size: 12px;
+  pointer-events: none;
 }
 
 /* =========================
@@ -2155,7 +2157,8 @@ td:last-child {
     grid-template-columns: 1fr;
   }
 
-  #regionText, .chevron-icon {
+  #regionText,
+  .chevron-icon {
     display: none;
   }
 }
@@ -2165,15 +2168,18 @@ td:last-child {
     font-size: 12px;
   }
 
-  .refresh-btn, .setting-btn {
+  .refresh-btn,
+  .setting-btn {
     width: 30px;
   }
 
-  .refresh-btn i, .setting-btn i {
+  .refresh-btn i,
+  .setting-btn i {
     margin-right: 0;
   }
 
-  .refresh-btn span, .setting-btn span {
+  .refresh-btn span,
+  .setting-btn span {
     display: none;
   }
 
@@ -2191,11 +2197,11 @@ td:last-child {
   }
 
   .ppl-name {
-        font-size: 13px;
-    }
+    font-size: 13px;
+  }
 
-  .chart-card{
-    padding:10px;
+  .chart-card {
+    padding: 10px;
   }
 
   .bar-chart {
@@ -2209,17 +2215,17 @@ td:last-child {
     height: 140px;
   }
 
-  .bar-item{
+  .bar-item {
     flex: 1;
   }
 
-  .bar-label{
-    max-width:70px;
-    white-space:nowrap;
+  .bar-label {
+    max-width: 70px;
+    white-space: nowrap;
   }
 
-  .bar-value{
-    font-size:9px;
+  .bar-value {
+    font-size: 9px;
   }
 
   #pplTableSection th:nth-child(8),
@@ -2235,8 +2241,9 @@ td:last-child {
   #desaTableSection td:nth-child(9) {
     display: none;
   }
-  
-  .panel-title, .section-title {
+
+  .panel-title,
+  .section-title {
     font-size: 14px;
   }
 
@@ -2333,7 +2340,8 @@ td:last-child {
     font-size: 26px;
   }
 
-  #regionText, .chevron-icon {
+  #regionText,
+  .chevron-icon {
     display: none !important;
   }
 
@@ -2382,13 +2390,13 @@ td:last-child {
   .edit-modal {
     width: calc(100vw - 24px);
   }
-  
+
   .form-group.horizontal {
     flex-direction: column;
     align-items: stretch;
     gap: 6px;
   }
-  
+
   .form-group.horizontal label {
     width: auto;
   }
