@@ -38,6 +38,8 @@
 
   --row-hover: #edf4ff;
   --summary-row-bg: #efefef;
+
+  --primary: #0d6efd;
 }
 
 [data-theme="dark"] {
@@ -1389,6 +1391,7 @@ body {
   border-radius: 10px;
   font-family: inherit;
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition:
     background .2s ease,
@@ -1555,7 +1558,7 @@ td:last-child {
 }
 
 .edit-btn:hover {
-  color: #1d4ed8;
+  color: #0b5ed7;
 }
 
 .done {
@@ -1757,6 +1760,7 @@ td:last-child {
   border-top: 1px solid var(--border);
   color: var(--text-muted);
   font-size: 12px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1772,6 +1776,10 @@ td:last-child {
 
 .footer-left i {
   color: var(--badge-danger-text);
+}
+
+.footer-left span a {
+  color: var(--primary);
 }
 
 /* kanan */
@@ -2063,12 +2071,12 @@ td:last-child {
 
 .btn-primary {
   border: none;
-  background: #2563eb;
+  background: var(--primary);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: #1d4ed8;
+  background: #0b5ed7;
 }
 
 .btn-primary i {
