@@ -40,6 +40,13 @@
   --summary-row-bg: #efefef;
 
   --primary: #0d6efd;
+
+  --card-hover-gradient:
+      linear-gradient(135deg,
+        rgba(233, 162, 39, .18) 0%,
+        rgba(233, 162, 39, .10) 18%,
+        rgba(233, 162, 39, .04) 40%,
+        var(--surface) 75%);
 }
 
 [data-theme="dark"] {
@@ -81,6 +88,13 @@
 
   --row-hover: #24324c;
   --summary-row-bg: #2b3445;
+
+  --card-hover-gradient:
+      linear-gradient(135deg,
+        rgba(251, 191, 36, .16) 0%,
+        rgba(251, 191, 36, .08) 18%,
+        rgba(251, 191, 36, .03) 40%,
+        var(--surface) 75%);
 }
 
 * {
@@ -812,13 +826,25 @@ body {
   border-radius: 10px;
   border: 1px solid var(--border);
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-  transition: transform .2s ease;
+  transition:
+      background .35s ease,
+      box-shadow .35s ease,
+      transform .25s ease;
 }
 
 .ppl-card:hover {
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, .12);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+  background: var(--card-hover-gradient);
+}
+
+@keyframes shine {
+  from {
+    left: -150%;
+  }
+
+  to {
+    left: 180%;
+  }
 }
 
 .ppl-avatar {
