@@ -1136,7 +1136,9 @@ function renderApexChart(containerId, summaryData) {
   const progressValues = [];
   const approvedValues = [];
 
-  Object.entries(summaryData).forEach(([label, d]) => {
+  Object.entries(summaryData)
+    .sort(([a], [b]) => a.localeCompare(b, "id"))
+    .forEach(([label, d]) => {
 
     const progress = d.muatan > 0
       ? ((d.submit + d.approve) / d.muatan) * 100
