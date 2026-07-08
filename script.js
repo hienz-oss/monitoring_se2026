@@ -1564,6 +1564,8 @@ function syncSubmitFromReview() {
   }
 
   submitInput.value = submit > 0 ? submit : "";
+  rejectInput.value = reject > 0 ? reject : "";
+  approvedInput.value = approved > 0 ? approved : "";
 
   lastReject = reject;
   lastApproved = approved;
