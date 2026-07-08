@@ -1896,6 +1896,10 @@ td:last-child {
 .input-icon-group input {
   border: 0;
   box-shadow: none;
+  flex: 1;
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  padding-left: 8px;
 }
 
 .input-icon-group input:hover,
@@ -1905,7 +1909,7 @@ td:last-child {
 }
 
 .input-icon-box {
-  width: 36px;
+  width: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1917,13 +1921,6 @@ td:last-child {
 
 .input-icon-box i {
   font-size: 13px;
-}
-
-.input-icon-group input {
-  flex: 1;
-  border-left: 0;
-  border-radius: 0 8px 8px 0;
-  padding-left: 12px;
 }
 
 /* Label di kiri (horizontal form) */
