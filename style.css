@@ -1797,6 +1797,7 @@ td:last-child {
   justify-content: space-between;
   align-items: center;
   padding: 8px 15px;
+  gap: 12px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
 }
@@ -1804,8 +1805,18 @@ td:last-child {
 .edit-header h3 {
   margin: 0;
   font-size: 14px;
+  padding-left: 12px;
   font-weight: 700;
   color: var(--text);
+}
+
+.edit-header:before {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 16px;
+  background: var(--region-border);
+  border-radius: 10px;
 }
 
 .modal-close {
