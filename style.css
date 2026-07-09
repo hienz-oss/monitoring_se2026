@@ -1471,6 +1471,7 @@ td:last-child {
   padding-left: 10px;
 }
 
+#detailTableSection td:nth-child(5),
 #detailTableSection td:nth-child(6),
 #detailTableSection td:nth-child(7),
 #detailTableSection td:nth-child(8) {
