@@ -1471,16 +1471,10 @@ td:last-child {
   padding-left: 10px;
 }
 
-#detailTableSection td:nth-child(6) {
-  color: var(--badge-warning-text);
-}
-
-#detailTableSection td:nth-child(7) {
-  color: var(--badge-danger-text);
-}
-
+#detailTableSection td:nth-child(6),
+#detailTableSection td:nth-child(7),
 #detailTableSection td:nth-child(8) {
-  color: var(--badge-success-text);
+  color: var(--primary);
 }
 
 .status {
