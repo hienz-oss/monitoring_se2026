@@ -1281,7 +1281,7 @@ body {
 .table-container {
   position: relative;
   background: var(--surface);
-  overflow: hidden;
+  overflow: auto;
   margin: 12px;
 }
 
@@ -1469,6 +1469,18 @@ td:first-child {
 
 td:last-child {
   padding-left: 10px;
+}
+
+#detailTableSection td:nth-child(6) {
+  color: var(--badge-warning-text);
+}
+
+#detailTableSection td:nth-child(7) {
+  color: var(--badge-danger-text);
+}
+
+#detailTableSection td:nth-child(8) {
+  color: var(--badge-success-text);
 }
 
 .status {
@@ -2253,6 +2265,19 @@ td:last-child {
     display: none;
   }
 
+  #detailTableSection th:nth-child(4),
+  #detailTableSection th:nth-child(5),
+  #detailTableSection th:nth-child(6),
+  #detailTableSection th:nth-child(7),
+  #detailTableSection th:nth-child(8) {
+    padding: 0 4px;
+  }
+
+  #detailTableSection th:nth-child(2) {
+    width: 140px;
+    min-width: 140px;
+  }
+
   .panel-title,
   .section-title {
     font-size: 14px;
@@ -2260,6 +2285,15 @@ td:last-child {
 
   .toolbar {
     gap: 5px;
+  }
+
+  .search-wrap {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  table td {
+    padding: 4px;
   }
 
   .pagination {
