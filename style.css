@@ -1257,7 +1257,7 @@ body {
   height: 30px;
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   font-family: inherit;
   font-size: inherit;
   transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
