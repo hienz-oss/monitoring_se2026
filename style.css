@@ -1253,10 +1253,11 @@ body {
 .toolbar input,
 .toolbar select {
   background: var(--surface);
-  padding: 8px;
+  padding: 0 8px;
+  height: 30px;
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   font-family: inherit;
   font-size: inherit;
   transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
