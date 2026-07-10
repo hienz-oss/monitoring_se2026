@@ -1249,7 +1249,7 @@ body {
   padding: 10px;
 }
 
-.toolbar button,
+.toolbar .reset-filter,
 .toolbar input,
 .toolbar select {
   background: var(--surface);
@@ -1270,14 +1270,14 @@ body {
   color: var(--text-muted);
 }
 
-.toolbar button:hover,
+.toolbar .reset-filter:hover,
 .toolbar input:hover,
 .toolbar select:hover {
   border-color: #f59e0b;
   box-shadow: 0 2px 8px rgba(245, 158, 11, .08);
 }
 
-.toolbar button:focus,
+.toolbar .reset-filter:focus,
 .toolbar input:focus,
 .toolbar select:focus {
   outline: none;
