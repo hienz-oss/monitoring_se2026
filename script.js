@@ -866,6 +866,10 @@ function renderPplSummary() {
         0
       );
 
+      const percentApproved =
+        data.muatan > 0 ? (data.approve / data.muatan) * 100 : 0;
+
+
       const progress =
         data.muatan > 0
           ? ((data.submit + data.approve) / data.muatan) * 100
@@ -899,6 +903,7 @@ function renderPplSummary() {
           <td align="center">${formatNumber(data.submit)}</td>
           <td align="center">${formatNumber(data.reject)}</td>
           <td align="center">${formatNumber(data.approve)}</td>
+          <td align="center">${formatPercent(percentApproved)}</td>
           <td align="center">
             <span class="badge ${progressClass}">
               ${formatPercent(progress)}
@@ -925,6 +930,9 @@ function renderPplSummary() {
       : 0;
 
   const totalProgressClass = getProgressClass(totalProgress);
+  const totalPercentApproved =
+    total.muatan > 0 ? (total.approve / total.muatan) * 100 : 0;
+
 
   let totalStatus = "Belum Mulai";
   let totalStatusClass = "empty";
@@ -945,6 +953,7 @@ function renderPplSummary() {
       <td align="center">${formatNumber(total.submit)}</td>
       <td align="center">${formatNumber(total.reject)}</td>
       <td align="center">${formatNumber(total.approve)}</td>
+      <td align="center">${formatPercent(totalPercentApproved)}</td>
       <td align="center">
         <span class="badge ${totalProgressClass}">
           ${formatPercent(totalProgress)}
@@ -1014,6 +1023,11 @@ function renderDesaSummary() {
         0
       );
 
+      const percentApproved =
+        data.muatan > 0 ? (data.approve / data.muatan) * 100 : 0;
+
+
+
       const progress =
         data.muatan > 0
           ? ((data.submit + data.approve) / data.muatan) * 100
@@ -1047,6 +1061,7 @@ function renderDesaSummary() {
           <td align="center">${formatNumber(data.submit)}</td>
           <td align="center">${formatNumber(data.reject)}</td>
           <td align="center">${formatNumber(data.approve)}</td>
+          <td align="center">${formatPercent(percentApproved)}</td>
           <td align="center">
             <span class="badge ${progressClass}">
               ${formatPercent(progress)}
@@ -1073,6 +1088,9 @@ function renderDesaSummary() {
       : 0;
 
   const totalProgressClass = getProgressClass(totalProgress);
+  const totalPercentApproved =
+    total.muatan > 0 ? (total.approve / total.muatan) * 100 : 0;
+
 
   let totalStatus = "Belum Mulai";
   let totalStatusClass = "empty";
@@ -1093,6 +1111,7 @@ function renderDesaSummary() {
       <td align="center">${formatNumber(total.submit)}</td>
       <td align="center">${formatNumber(total.reject)}</td>
       <td align="center">${formatNumber(total.approve)}</td>
+      <td align="center">${formatPercent(totalPercentApproved)}</td>
       <td align="center">
         <span class="badge ${totalProgressClass}">
           ${formatPercent(totalProgress)}
