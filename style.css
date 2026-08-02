@@ -1510,6 +1510,7 @@ td:last-child {
   background: transparent;
   color: var(--text);
   cursor: pointer;
+  font-size: 14px;
   transition: .2s;
 }
 
